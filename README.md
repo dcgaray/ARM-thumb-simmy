@@ -1,6 +1,9 @@
 # ARM-thumb-simmy
 This repository was created for our Computer Architecture class cpe315 at Cal Poly SLO. The goal of this project is to create an ARM Thumb Simulator.
 
+Contributors: Laura C., Diego G., Ryan N., and Yuya S.
+For: Maria Pantoja
+
 We have been provided with some support code that is written in ARM that our simulator is supposed to eventually run.
 Once completed, our simulator will support the following instructions:
 ## Tasks
