@@ -125,12 +125,12 @@ static int checkCondition(unsigned short cond) {
       }
       break;
     case VS:
-      if (flags.V == 0) {
+      if (flags.V == 1) {
         return TRUE;
       }
       break;
     case VC:
-      if (flags.V == 1) {
+      if (flags.V == 0) {
         return TRUE;
       }
       break;
