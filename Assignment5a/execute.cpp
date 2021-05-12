@@ -23,6 +23,7 @@ unsigned int signExtend8to32ui(char i) {
   return static_cast<unsigned int>(static_cast<int>(i));
 }
 
+
 // This is the global object you'll use to store condition codes N,Z,V,C
 // Set these bits appropriately in execute below.
 ASPR flags;
@@ -124,7 +125,7 @@ static int checkCondition(unsigned short cond) {
       }
       break;
     case VS:
-      if (flags.V == 1) {
+      if (flags.V == 0) {
         return TRUE;
       }
       break;
@@ -139,7 +140,7 @@ static int checkCondition(unsigned short cond) {
       }
       break;
     case LS:
-      if (flags.C == 1 || flags.Z == 1) {
+      if (flags.C == 0 || flags.Z == 1) {
         return TRUE;
       }
       break;
