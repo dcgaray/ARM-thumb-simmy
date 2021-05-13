@@ -23,6 +23,10 @@ unsigned int signExtend8to32ui(char i) {
   return static_cast<unsigned int>(static_cast<int>(i));
 }
 
+unsigned int signExtend11to32ui(int i){
+  return static_cast<unsigned int>(static_cast<int>(i));
+}
+
 
 // This is the global object you'll use to store condition codes N,Z,V,C
 // Set these bits appropriately in execute below.
