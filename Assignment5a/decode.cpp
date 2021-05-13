@@ -80,7 +80,7 @@ ALU_Ops decode (const ALU_Type data) {
   if (data.instr.lsli.op == ALU_LSLI_OP) {
     // 315: insert code here to print lsls instruction
     if (opts.instrs) { 
-      cout << "lsli r" << data.instr.lsli.rd  << ", r" << data.instr.lsli.rn << ", r" << data.instr.lsli.rm << endl;
+      cout << "lsli r" << data.instr.lsli.rd  << ", r" << data.instr.lsli.rn << ", #" << data.instr.lsli.imm << endl;
     }
     return ALU_LSLI;
   }
@@ -145,6 +145,9 @@ ALU_Ops decode (const ALU_Type data) {
 DP_Ops decode (const DP_Type data) {
   if (data.instr.DP_Instr.op == DP_CMP) {
     // 315: insert code here to print cmp instruction
+    if (opts.instrs){
+      cout << "cmp r" << data.instr.DP_Instr.rdn << ", r" << data.instr.DP_Instr.rm << endl;
+    }
     return DP_CMP;
   }
   else {
@@ -187,14 +190,14 @@ SP_Ops decode (const SP_Type data) {
       if (data.instr.add.d) {
         // These two cases handle stack pointer printing
         if (data.instr.add.rd == 5) {
-          cout << " sp, r" << setbase(10) << data.instr.add.rm << endl;
+          cout << " sp, sp, r" << setbase(10) << data.instr.add.rm << endl;
         }
         else if (data.instr.add.rm == 13) {
           cout << " r" << setbase(10) << (8+data.instr.add.rd) << ", sp" << endl;
         }
         // this case is for registers greater than r7 that aren't sp
         else {
-          cout << " r" << setbase(10) << (8+data.instr.add.rd) << ", r" << setbase(10) << data.instr.add.rm << endl;
+          cout << " r" << setbase(10) << (8+data.instr.add.rd) << ", r" << setbase(10) << (8+data.instr.add.rd) << ", r" << setbase(10) << data.instr.add.rm << endl;
         }
       }
       // another stack pointer case
@@ -244,18 +247,30 @@ LD_ST_Ops decode (const LD_ST_Type data) {
   if (data.instr.class_type.opA == LD_ST_REG_OPA) {
     if (data.instr.class_type.opB == LD_ST_OPB_LDRB) {
       // 315: write code to print ldrb
+      if (opts.instrs) {
+        cout << "ldrb r" << data.instr.ld_st_reg.rt << ", [r" << data.instr.ld_st_reg.rn << ", r" << data.instr.ld_st_reg.rm << "]" << endl;
+      }  
       return LDRBR;
     }
     else if (data.instr.class_type.opB == LD_ST_OPB_STRB) {
       // 315: write code to print strb
+      if (opts.instrs) {
+        cout << "strb r" << data.instr.ld_st_reg.rt << ", [r" << data.instr.ld_st_reg.rn << ", r" << data.instr.ld_st_reg.rm << "]" << endl;
+      }  
       return STRBR;
     }
     else if (data.instr.class_type.opB == LD_ST_OPB_LDR) {
       // 315: write code to print ldr
+      if (opts.instrs) {
+        cout << "ldr r" << data.instr.ld_st_reg.rt << ", [r" << data.instr.ld_st_reg.rn << ", r" << data.instr.ld_st_reg.rm << "]" << endl;
+      } 
       return LDRR;
     }
     else if (data.instr.class_type.opB == LD_ST_OPB_STR) {
       // 315: write code to print str
+      if (opts.instrs) {
+        cout << "str r" << data.instr.ld_st_reg.rt << ", [r" << data.instr.ld_st_reg.rn << ", r" << data.instr.ld_st_reg.rm << "]" << endl;
+      }
       return STRR;
     }
   }
@@ -276,10 +291,16 @@ LD_ST_Ops decode (const LD_ST_Type data) {
   else if (data.instr.class_type.opA == LD_ST_IMMB_OPA) {
     if (data.instr.ld_st_imm.op == LD_ST_LDB) {
       // 315: write code to print ldrb 
+      if (opts.instrs){
+        cout << "ldrb r" << data.instr.ld_st_imm.rt << ", [r" << data.instr.ld_st_imm.rn << ", #" << setbase(10) << (data.instr.ld_st_imm.imm*4) << "]" << endl;
+      }
       return LDRBI;
     }
     else if (data.instr.ld_st_imm.op == LD_ST_STB) {
       // 315: write code to print strb
+      if (opts.instrs){
+        cout << "strb r" << data.instr.ld_st_imm.rt << ", [r" << data.instr.ld_st_imm.rn << ", #" << setbase(10) << (data.instr.ld_st_imm.imm*4) << "]" << endl;
+      }
       return STRBI;
     }
   }
@@ -488,6 +509,9 @@ int decode (const STM_Type data) {
 
 int decode (const LDRL_Type data) {
   // 315: add code to print ldr
+  if (opts.instrs) {
+    cout << "ldr r" << data.instr.ldrl.rt << ", [pc, #" << setbase(10) << data.instr.ldrl.imm * 4 << "]" << endl;
+  }
   return LDRL;
 }
 
