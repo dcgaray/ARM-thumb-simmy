@@ -100,7 +100,7 @@ ALU_Ops decode (const ALU_Type data) {
   else if (data.instr.add3i.op == ALU_ADD3I_OP) {
     // complete
     if (opts.instrs) { 
-      cout << "adds r" << data.instr.add3i.rd << ", r" << data.instr.add3i.rn << ", #" << data.instr.add3i.imm << endl;
+      cout << "adds r" << data.instr.add3i.rd << ", r" << data.instr.add3i.rm << ", #" << data.instr.add3i.imm << endl;
     }
     return ALU_ADD3I;
   }
