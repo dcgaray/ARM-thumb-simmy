@@ -392,6 +392,8 @@ switch(dp_ops) {
           // need to implement
       setNegativeFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);
       setCarryOverflow(rf[dp.instr.DP_Instr.rdn] ,rf[dp.instr.DP_Instr.rm],OF_SUB);
+
+      stats.numRegReads += 2;
     break;
 }
 break;
@@ -403,6 +405,7 @@ switch(sp_ops) {
     case SP_MOV:
           // needs stats and flags
     rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
+    setCarryOverflow(sp.instr.mov.d,3,OF_SHIFT);
     break;
     ///////////////////////////////////////
     case SP_ADD:
