@@ -35,11 +35,6 @@ ASPR flags;
 // flags for each instruction that does that. It only needs to take
 // one parameter as input, the result of whatever operation is executing
 
-void setNegAndZero(int res){
-  setNegativeFlag(res);
-  setZeroFlag(res);
-}
-
 void setNegativeFlag(int res){
   if(res < 0){
     flags.N = 1;
@@ -55,6 +50,10 @@ void setZeroFlag(int res){
   }
 }
 
+void setNegAndZero(int res){
+  setNegativeFlag(res);
+  setZeroFlag(res);
+}
 // This function is complete, you should not have to modify it
 void setCarryOverflow (int num1, int num2, OFType oftype) {
   switch (oftype) {
@@ -473,6 +472,7 @@ switch(ldst_ops) {
     //////////////////////////////////
     case STRBI:
           //I based this model off of the original STRI given by Pantoja
+          // store reg base (immediate)
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
           dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
           // allow cache access to addr
@@ -480,14 +480,21 @@ switch(ldst_ops) {
           //stats
           stats.numRegReads += 2;
           stats.numMemWrites++;
-	        // store reg base (immediate)
           break;
-          
+
     case LDRBI:
-          // need to implement
-	  // load register base (immediate)
-    break;
-    //////////////////////////////////
+          //This base is modeled off what was provided by Pantoja
+          // load register base (immediate)
+          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+          rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+          //allow access to addr
+          caches.access(addr);
+          //stats
+          stats.numRegReads++;
+          stats.numMemReads++;
+          stats.numRegWrites++;
+          break;
+
     case STRBR:
           // need to implement
 	  // store register byte (register)
@@ -497,7 +504,6 @@ switch(ldst_ops) {
           // need to implement
 	  // load register signed byte (register)
     break;
-    ///////////////////////////////////
 }
 break;
 ////////////////////////////////
