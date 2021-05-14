@@ -256,8 +256,9 @@ void execute() {
 
           // Set OverFlow, Negative and Zero Flags as indicated by A7.74 Add (register)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
-          setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
-          setZeroFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          //setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          //setZeroFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          setNegAndZero(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
 
           //Set stats
           stats.numRegWrites++;
