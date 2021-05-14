@@ -499,11 +499,19 @@ switch(ldst_ops) {
           // need to implement
 	  // store register byte (register)
     break;
-    //////////////////////////////////
+
     case LDRBR:
-          // need to implement
-	  // load register signed byte (register)
-    break;
+  	  // load register signed byte (register)
+      int offset = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
+      addr = rf[ld_st.instr.ld_st_imm.rn] + offset * 4;
+      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+      //allow access to adr
+      caches.access(addr);
+      //stats
+      stats.numRegReads++;
+      stats.numMemReads++;
+      stats.numRegWrites++;
+      break;
 }
 break;
 ////////////////////////////////
