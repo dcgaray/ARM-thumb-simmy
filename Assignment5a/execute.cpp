@@ -35,6 +35,11 @@ ASPR flags;
 // flags for each instruction that does that. It only needs to take
 // one parameter as input, the result of whatever operation is executing
 
+void setNegAndZero(int res){
+  setNegativeFlag(res);
+  setZeroFlag(res);
+}
+
 void setNegativeFlag(int res){
   if(res < 0){
     flags.N = 1;
