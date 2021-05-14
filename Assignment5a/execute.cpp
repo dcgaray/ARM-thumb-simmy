@@ -11,6 +11,7 @@
 
 Stats stats;
 Caches caches(0);
+int offset_byteReg;
 
 // CPE 315: you'll need to implement a custom sign-extension function
 // in addition to the ones given below, specifically for the unconditional
@@ -469,7 +470,7 @@ switch(ldst_ops) {
           // need to implement
 	  // load register (register)
 	  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
-	  rf.write(ld_st.instr.ld_st_imm,rt, dmem[addr]);
+	  rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
 	  //allow access to addr
 	  caches.access(addr);
@@ -509,9 +510,9 @@ switch(ldst_ops) {
     case STRBR:
           // need to implement
 	  // store register byte (register)
-	  int offset = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
+	       offset_byteReg = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
 
-          addr = rf[ld_st.instr.ld_st_reg.rn] + offset*4;
+          addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg*4;
           dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
 
           //allow access to addr
@@ -524,8 +525,8 @@ switch(ldst_ops) {
 
     case LDRBR:
   	  // load register signed byte (register)
-      int offset = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
-      addr = rf[ld_st.instr.ld_st_imm.rn] + offset * 4;
+      offset_byteReg = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
+      addr = rf[ld_st.instr.ld_st_imm.rn] + offset_byteReg * 4;
       rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
       //allow access to adr
       caches.access(addr);
@@ -564,25 +565,22 @@ break;
 /////////////////////////////////////
 /////////////////////////////////////
 case COND:
-decode(cond);
-      // Once you've completed the checkCondition function,
-      // this should work for all your conditional branches.
-      // needs stats
+  decode(cond);
+  // Once you've completed the checkCondition function,
+  // this should work for all your conditional branches.
+  // needs stats
   if (checkCondition(cond.instr.b.cond)){
     rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
   }
   break;
-///////////////////////////////////////
-///////////////////////////////////////
+  
 case UNCOND:
-      // Essentially the same as the conditional branches, but with no
-      // condition check, and an 11-bit immediate field
-
+  // Essentially the same as the conditional branches, but with no
+  // condition check, and an 11-bit immediate field
   decode(uncond);
-    rf.write(PC_REG, PC + 2 * signExtend11to32ui(cond.instr.b.imm) + 2);
+  rf.write(PC_REG, PC + 2 * signExtend11to32ui(cond.instr.b.imm) + 2);
   break;
-////////////////////////////////////////
-////////////////////////////////////////
+
 case LDM:
   decode(ldm);
       // need to implement
