@@ -447,7 +447,7 @@ switch(ldst_ops) {
     break;
     //////////////////////////////////
     case LDRI:
-          // functionally complete, needs stats
+    // functionally complete, needs stats
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
@@ -477,22 +477,27 @@ switch(ldst_ops) {
     //////////////////////////////////
     case LDRR:
           // need to implement
+	  // load register (register)
     break;
     //////////////////////////////////
     case STRBI:
           // need to implement
+	  // store reg base (immediate)
     break;
     //////////////////////////////////
     case LDRBI:
           // need to implement
+	  // load register base (immediate)
     break;
     //////////////////////////////////
     case STRBR:
           // need to implement
+	  // store register byte (register)
     break;
     //////////////////////////////////
     case LDRBR:
           // need to implement
+	  // load register signed byte (register)
     break;
     ///////////////////////////////////
 }
