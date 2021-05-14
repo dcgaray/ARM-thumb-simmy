@@ -27,7 +27,6 @@ unsigned int signExtend11to32ui(int i){
   return static_cast<unsigned int>(static_cast<int>(i));
 }
 
-
 // This is the global object you'll use to store condition codes N,Z,V,C
 // Set these bits appropriately in execute below.
 ASPR flags;
@@ -96,14 +95,14 @@ void setCarryOverflow (int num1, int num2, OFType oftype) {
         else {
             flags.C = 1;
         }
-}
-      // Shift doesn't set overflow
-break;
-/////////////////////////////////////////////
-default:
-cerr << "Bad OverFlow Type encountered." << __LINE__ << __FILE__ << endl;
-exit(1);
-}
+    }
+    // Shift doesn't set overflow
+    break;
+    /////////////////////////////////////////////
+  default:
+    cerr << "Bad OverFlow Type encountered." << __LINE__ << __FILE__ << endl;
+    exit(1);
+      }
 }
 
 //Okay, this function was completed by Ryan and the code was taken off of the 
@@ -111,92 +110,92 @@ exit(1);
 static int checkCondition(unsigned short cond) {
   switch(cond) {
     case EQ:
-    if (flags.Z == 1) {
-        return TRUE;
-    }
-    break;
+      if (flags.Z == 1) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case NE:
-    if (flags.Z == 0) {
-        return TRUE;
-    }
+      if (flags.Z == 0) {
+          return TRUE;
+      }
     break;
     ////////////////////////
     case CS:
-    if (flags.C == 1) {
-        return TRUE;
-    }
-    break;
+      if (flags.C == 1) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case CC:
-    if (flags.C == 0) {
-        return TRUE;
-    }
-    break;
+      if (flags.C == 0) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case MI:
-    if (flags.N == 1) {
-        return TRUE;
-    }
-    break;
+      if (flags.N == 1) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case PL:
-    if (flags.N == 0) {
-        return TRUE;
-    }
-    break;
+      if (flags.N == 0) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case VS:
-    if (flags.V == 1) {
-        return TRUE;
-    }
-    break;
+      if (flags.V == 1) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case VC:
       if (flags.V == 0) {
         return TRUE;
-    }
-    break;
+      }
+      break;
     ////////////////////////
     case HI:
-    if (flags.C == 1 && flags.Z == 0) {
-        return TRUE;
-    }
-    break;
+      if (flags.C == 1 && flags.Z == 0) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case LS:
       if (flags.C == 0 || flags.Z == 1) {
         return TRUE;
-    }
-    break;
+      }
+      break;
     ////////////////////////
     case GE:
-    if (flags.N == flags.V) {
-        return TRUE;
-    }
-    break;
+      if (flags.N == flags.V) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case LT:
-    if (flags.N != flags.V) {
-        return TRUE;
-    }
-    break;
+      if (flags.N != flags.V) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case GT:
-    if (flags.Z == 0 && flags.N == flags.V) {
-        return TRUE;
-    }
-    break;
+      if (flags.Z == 0 && flags.N == flags.V) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case LE:
-    if (flags.Z == 1 or flags.N != flags.V) {
-        return TRUE;
-    }
-    break;
+      if (flags.Z == 1 or flags.N != flags.V) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case AL:
-    return TRUE;
-    break;
+      return TRUE;
+      break;
     ////////////////////////
 }
 return FALSE;
@@ -250,12 +249,21 @@ void execute() {
     add_ops = decode(alu);
     switch(add_ops) {
         case ALU_LSLI:
-        break;
+          // I followed all of the instructions I found from the manuel in A7.7.67 LSL(Immediate)
+          rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
+
+          // Check to see if we need to set any of the flags.
+          setCarryOverflow(rf[alu.instr.lsli.rm], alu.instr.lsli.imm, OF_SHIFT);
+          setNegAndZero(rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
+
+          //Set stats
+          stats.numRegWrites++;
+          stats.numRegReads++;  //NOTE: This may be wrong, but it was only 1 register so...
+          break;
         ///////////////////////
         case ALU_ADDR:
           // needs stats and flags
-          
-	  rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
 
           // Set OverFlow, Negative and Zero Flags as indicated by A7.74 Add (register)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
@@ -267,14 +275,24 @@ void execute() {
           stats.numRegWrites++;
           stats.numRegReads += 2;
           break;
-        
-	case ALU_SUBR:
-        break;
+
+        case ALU_SUBR:
+          rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+
+          //set flags according to A7.7.172
+          setCarryOverflow(rf[alu.instr.subr.rn],rf[alu.instr.subr.rm],OF_SUB);
+          setNegativeFlag(rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+          setZeroFlag(rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+
+          //update stats
+          stats.numRegWrites++;
+          stats.numRegReads += 2;
+          break;
         ///////////////////////
         case ALU_ADD3I:
           // needs stats and flags
-          
-	  rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
+          rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
+
           
           // Set OverFlow, Negative as indicated by A7.7.3 ADD (immediate)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
@@ -308,8 +326,17 @@ void execute() {
           stats.numRegWrites++;
 
           break;
-
+        
         case ALU_CMP:
+
+        // Set flags as indicated by A7.7.27
+        setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB);
+        setNegativeFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
+        setZeroFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
+
+        //update stats
+        stats.numRegReads++;
+
         break;
         /////////////////////////
         case ALU_ADD8I:
@@ -318,6 +345,12 @@ void execute() {
         break;
         /////////////////////////
         case ALU_SUB8I:
+        rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
+
+        //Stats
+        stats.numRegReads++;
+        stats.numRegWrites++;
+
         break;
         /////////////////////////
         default:
@@ -399,16 +432,42 @@ switch(ldst_ops) {
           // functionally complete, needs stats
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
+
+    //allow access to addr
+    caches.access(addr);
+
+    //Stats
+    stats.numRegReads += 2;
+    stats.numMemWrites++;
     break;
     //////////////////////////////////
     case LDRI:
           // functionally complete, needs stats
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+
+    //allow access to addr
+    caches.access(addr);
+
+    //Stats
+    stats.numRegReads++;
+    stats.numMemReads++;
+    stats.numRegWrites++;
     break;
     //////////////////////////////////
     case STRR:
           // need to implement
+          addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
+          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+
+          //allow access to addr
+          caches.access(addr);
+          
+          //Stats
+          stats.numRegReads += 2;
+          stats.numMemWrites++;
+
+
     break;
     //////////////////////////////////
     case LDRR:
@@ -522,5 +581,6 @@ else {
       cout << "[ERROR] Unknown Instruction to be executed" << endl;
       exit(1);
       break;
+     //////////////////////// 
   }
 }
