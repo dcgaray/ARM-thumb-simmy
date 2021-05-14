@@ -397,6 +397,10 @@ dp_ops = decode(dp);
 switch(dp_ops) {
     case DP_CMP:
           // need to implement
+      setNegativeFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);
+      setCarryOverflow(rf[dp.instr.DP_Instr.rdn] ,rf[dp.instr.DP_Instr.rm],OF_SUB);
+
+      stats.numRegReads += 2;
     break;
 }
 break;
@@ -408,6 +412,7 @@ switch(sp_ops) {
     case SP_MOV:
           // needs stats and flags
     rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
+    setCarryOverflow(sp.instr.mov.d,3,OF_SHIFT);
     break;
     ///////////////////////////////////////
     case SP_ADD:
@@ -429,7 +434,7 @@ switch(ldst_ops) {
     case STRI:
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
-
+  
     //allow access to addr
     caches.access(addr);
 
@@ -468,19 +473,18 @@ switch(ldst_ops) {
     //////////////////////////////////
     case LDRR:
           // need to implement
-	  // load register (register)
-	  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
-	  rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+      // load register (register)
+      addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
+      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
-	  //allow access to addr
-	  caches.access(addr);
+      //allow access to addr
+      caches.access(addr);
 
-	  //Stats
-	  stats.numRegReads += 2;
-          stats.numMemReads++;
-          stats.numRegWrites++;
-
-    break;
+      //Stats
+      stats.numRegReads += 2;
+      stats.numMemReads++;
+      stats.numRegWrites++;
+      break;
     //////////////////////////////////
     case STRBI:
           //I based this model off of the original STRI given by Pantoja
