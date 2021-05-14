@@ -49,6 +49,22 @@ void setNegAndZero(int res){
   }
 }
 
+static void setNegativeFlag(int result) {
+   if (result < 0) {
+      flags.N = 1;
+   } else { 
+      flags.N = 0; 
+   }
+}
+
+static void setNegativeFlag(int result) {
+   if (result < 0) {
+      flags.N = 1;
+   } else { 
+      flags.N = 0; 
+   }
+}
+
 // This function is complete, you should not have to modify it
 void setCarryOverflow (int num1, int num2, OFType oftype) {
   switch (oftype) {
