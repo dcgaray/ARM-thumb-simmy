@@ -36,6 +36,19 @@ ASPR flags;
 // flags for each instruction that does that. It only needs to take
 // one parameter as input, the result of whatever operation is executing
 
+void setNegAndZero(int res){
+  if(res < 0){
+    flags.N = 1;
+  }else{
+    flags.N = 0;
+  }
+  if(res == 0){
+    flags.Z = 0;
+  }else{
+    flags.Z = 1;
+  }
+}
+
 // This function is complete, you should not have to modify it
 void setCarryOverflow (int num1, int num2, OFType oftype) {
   switch (oftype) {
@@ -239,25 +252,76 @@ void execute() {
         ///////////////////////
         case ALU_ADDR:
           // needs stats and flags
-        rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
-        break;
+//<<<<<<< //laura-develop
+        //rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+        //break;
         ///////////////////////
+//=======
+          rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+
+          // Set OverFlow, Negative and Zero Flags as indicated by A7.74 Add (register)
+          setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
+          setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          setZeroFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+
+          //Set stats
+          stats.numRegWrites++;
+          stats.numRegReads += 2;
+          break;
+//>>>>>>> ryan-develop
         case ALU_SUBR:
         break;
         ///////////////////////
         case ALU_ADD3I:
           // needs stats and flags
-        rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
-        break;
+//<<<<<<< //laura-develop
+        //rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
+        //break;
         ///////////////////////
+        //case ALU_SUB3I:
+        //break;
+        ///////////////////////
+        //case ALU_MOV:
+          // needs stats and flags
+        //rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
+        //break;
+        ////////////////////////
+//=======
+          rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
+          
+          // Set OverFlow, Negative as indicated by A7.7.3 ADD (immediate)
+          setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
+          setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+
+          //Set stats
+          stats.numRegWrites++;
+          stats.numRegReads++;
+
+          break;
         case ALU_SUB3I:
-        break;
-        ///////////////////////
+          rf.write(alu.instr.sub3i.rd, rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
+          
+          // Set OverFlow, Negative as indicated by A7.7.171 SUB (immediate)
+          setCarryOverflow(rf[alu.instr.sub3i.rn], alu.instr.sub3i.imm ,OF_SUB);
+          setNegativeFlag(rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
+
+          //Set stats
+          stats.numRegWrites++;
+          stats.numRegReads++;
+          break;
         case ALU_MOV:
           // needs stats and flags
-        rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
-        break;
-        ////////////////////////
+          rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
+
+          // Set Negative as indicated by A7.7.75
+          setNegativeFlag(alu.instr.mov.imm);
+          setZeroFlag(alu.instr.mov.imm);
+
+          //Set stats
+          stats.numRegWrites++;
+
+          break;
+//>>>>>>> ryan-develop
         case ALU_CMP:
         break;
         /////////////////////////
