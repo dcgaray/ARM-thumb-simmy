@@ -427,7 +427,6 @@ case LD_ST:
 ldst_ops = decode(ld_st);
 switch(ldst_ops) {
     case STRI:
-          // functionally complete, needs stats
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
 
@@ -440,18 +439,17 @@ switch(ldst_ops) {
     break;
     //////////////////////////////////
     case LDRI:
-    // functionally complete, needs stats
-    addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
-    rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+      addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
-    //allow access to addr
-    caches.access(addr);
+      //allow access to addr
+      caches.access(addr);
 
-    //Stats
-    stats.numRegReads++;
-    stats.numMemReads++;
-    stats.numRegWrites++;
-    break;
+      //Stats
+      stats.numRegReads++;
+      stats.numMemReads++;
+      stats.numRegWrites++;
+      break;
     //////////////////////////////////
     case STRR:
           // need to implement
@@ -474,10 +472,17 @@ switch(ldst_ops) {
     break;
     //////////////////////////////////
     case STRBI:
-          // need to implement
-	  // store reg base (immediate)
-    break;
-    //////////////////////////////////
+          //I based this model off of the original STRI given by Pantoja
+          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+          dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
+          // allow cache access to addr
+          caches.access(addr);
+          //stats
+          stats.numRegReads += 2;
+          stats.numMemWrites++;
+	        // store reg base (immediate)
+          break;
+          
     case LDRBI:
           // need to implement
 	  // load register base (immediate)
