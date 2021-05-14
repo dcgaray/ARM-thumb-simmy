@@ -36,12 +36,14 @@ ASPR flags;
 // flags for each instruction that does that. It only needs to take
 // one parameter as input, the result of whatever operation is executing
 
-void setNegAndZero(int res){
+void setNegativeFlag(int res){
   if(res < 0){
     flags.N = 1;
   }else{
     flags.N = 0;
   }
+}
+void setZeroFlag(int res){
   if(res == 0){
     flags.Z = 0;
   }else{
@@ -257,9 +259,9 @@ void execute() {
 
           // Set OverFlow, Negative and Zero Flags as indicated by A7.74 Add (register)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
-          //setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
-          //setZeroFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
-          setNegAndZero(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          setZeroFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          //setNegAndZero(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
 
           //Set stats
           stats.numRegWrites++;
