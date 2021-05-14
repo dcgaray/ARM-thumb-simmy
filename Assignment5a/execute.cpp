@@ -27,7 +27,6 @@ unsigned int signExtend11to32ui(int i){
   return static_cast<unsigned int>(static_cast<int>(i));
 }
 
-
 // This is the global object you'll use to store condition codes N,Z,V,C
 // Set these bits appropriately in execute below.
 ASPR flags;
@@ -37,11 +36,18 @@ ASPR flags;
 // one parameter as input, the result of whatever operation is executing
 
 void setNegAndZero(int res){
+  setNegativeFlag(res);
+  setZeroFlag(res);
+}
+
+void setNegativeFlag(int res){
   if(res < 0){
     flags.N = 1;
   }else{
     flags.N = 0;
   }
+}
+void setZeroFlag(int res){
   if(res == 0){
     flags.Z = 0;
   }else{
@@ -110,14 +116,14 @@ void setCarryOverflow (int num1, int num2, OFType oftype) {
         else {
             flags.C = 1;
         }
-}
-      // Shift doesn't set overflow
-break;
-/////////////////////////////////////////////
-default:
-cerr << "Bad OverFlow Type encountered." << __LINE__ << __FILE__ << endl;
-exit(1);
-}
+    }
+    // Shift doesn't set overflow
+    break;
+    /////////////////////////////////////////////
+  default:
+    cerr << "Bad OverFlow Type encountered." << __LINE__ << __FILE__ << endl;
+    exit(1);
+      }
 }
 
 //Okay, this function was completed by Ryan and the code was taken off of the 
@@ -125,92 +131,92 @@ exit(1);
 static int checkCondition(unsigned short cond) {
   switch(cond) {
     case EQ:
-    if (flags.Z == 1) {
-        return TRUE;
-    }
-    break;
+      if (flags.Z == 1) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case NE:
-    if (flags.Z == 0) {
-        return TRUE;
-    }
+      if (flags.Z == 0) {
+          return TRUE;
+      }
     break;
     ////////////////////////
     case CS:
-    if (flags.C == 1) {
-        return TRUE;
-    }
-    break;
+      if (flags.C == 1) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case CC:
-    if (flags.C == 0) {
-        return TRUE;
-    }
-    break;
+      if (flags.C == 0) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case MI:
-    if (flags.N == 1) {
-        return TRUE;
-    }
-    break;
+      if (flags.N == 1) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case PL:
-    if (flags.N == 0) {
-        return TRUE;
-    }
-    break;
+      if (flags.N == 0) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case VS:
-    if (flags.V == 1) {
-        return TRUE;
-    }
-    break;
+      if (flags.V == 1) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case VC:
       if (flags.V == 0) {
         return TRUE;
-    }
-    break;
+      }
+      break;
     ////////////////////////
     case HI:
-    if (flags.C == 1 && flags.Z == 0) {
-        return TRUE;
-    }
-    break;
+      if (flags.C == 1 && flags.Z == 0) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case LS:
       if (flags.C == 0 || flags.Z == 1) {
         return TRUE;
-    }
-    break;
+      }
+      break;
     ////////////////////////
     case GE:
-    if (flags.N == flags.V) {
-        return TRUE;
-    }
-    break;
+      if (flags.N == flags.V) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case LT:
-    if (flags.N != flags.V) {
-        return TRUE;
-    }
-    break;
+      if (flags.N != flags.V) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case GT:
-    if (flags.Z == 0 && flags.N == flags.V) {
-        return TRUE;
-    }
-    break;
+      if (flags.Z == 0 && flags.N == flags.V) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case LE:
-    if (flags.Z == 1 or flags.N != flags.V) {
-        return TRUE;
-    }
-    break;
+      if (flags.Z == 1 or flags.N != flags.V) {
+          return TRUE;
+      }
+      break;
     ////////////////////////
     case AL:
-    return TRUE;
-    break;
+      return TRUE;
+      break;
     ////////////////////////
 }
 return FALSE;
@@ -264,7 +270,17 @@ void execute() {
     add_ops = decode(alu);
     switch(add_ops) {
         case ALU_LSLI:
-        break;
+          // I followed all of the instructions I found from the manuel in A7.7.67 LSL(Immediate)
+          rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
+
+          // Check to see if we need to set any of the flags.
+          setCarryOverflow(rf[alu.instr.lsli.rm], alu.instr.lsli.imm, OF_SHIFT);
+          setNegAndZero(rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
+
+          //Set stats
+          stats.numRegWrites++;
+          stats.numRegReads++;  //NOTE: This may be wrong, but it was only 1 register so...
+          break;
         ///////////////////////
         case ALU_ADDR:
           // needs stats and flags
@@ -274,6 +290,7 @@ void execute() {
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
           setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
           setZeroFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          //setNegAndZero(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
 
           //Set stats
           stats.numRegWrites++;
@@ -446,7 +463,7 @@ switch(ldst_ops) {
     break;
     //////////////////////////////////
     case LDRI:
-          // functionally complete, needs stats
+    // functionally complete, needs stats
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
@@ -476,22 +493,27 @@ switch(ldst_ops) {
     //////////////////////////////////
     case LDRR:
           // need to implement
+	  // load register (register)
     break;
     //////////////////////////////////
     case STRBI:
           // need to implement
+	  // store reg base (immediate)
     break;
     //////////////////////////////////
     case LDRBI:
           // need to implement
+	  // load register base (immediate)
     break;
     //////////////////////////////////
     case STRBR:
           // need to implement
+	  // store register byte (register)
     break;
     //////////////////////////////////
     case LDRBR:
           // need to implement
+	  // load register signed byte (register)
     break;
     ///////////////////////////////////
 }
@@ -585,5 +607,6 @@ else {
       cout << "[ERROR] Unknown Instruction to be executed" << endl;
       exit(1);
       break;
+     //////////////////////// 
   }
 }
