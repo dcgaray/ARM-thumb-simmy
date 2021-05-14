@@ -568,23 +568,25 @@ decode(cond);
       // Once you've completed the checkCondition function,
       // this should work for all your conditional branches.
       // needs stats
-if (checkCondition(cond.instr.b.cond)){
+  if (checkCondition(cond.instr.b.cond)){
     rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
-}
-break;
+  }
+  break;
 ///////////////////////////////////////
 ///////////////////////////////////////
 case UNCOND:
       // Essentially the same as the conditional branches, but with no
       // condition check, and an 11-bit immediate field
-decode(uncond);
-break;
+
+  decode(uncond);
+    rf.write(PC_REG, PC + 2 * signExtend11to32ui(cond.instr.b.imm) + 2);
+  break;
 ////////////////////////////////////////
 ////////////////////////////////////////
 case LDM:
-decode(ldm);
+  decode(ldm);
       // need to implement
-break;
+  break;
 ////////////////////////////////////////
 ////////////////////////////////////////
 case STM:
