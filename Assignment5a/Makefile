@@ -1,5 +1,5 @@
 all:
-	g++ -g main.cpp decode.cpp thumbsim_driver.cpp parse.cpp execute.cpp -o thumbsim
+	g++ -g main.cpp decode.cpp thumbsim_driver.cpp parse.cpp execute.cpp -o thumbsim -w
 
 run:
 	./thumbsim -i -d -f inputs/fib.sim
