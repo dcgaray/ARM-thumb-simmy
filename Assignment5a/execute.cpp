@@ -478,6 +478,17 @@ switch(ldst_ops) {
     case LDRR:
           // need to implement
 	  // load register (register)
+	  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
+	  rf.write(ld_st.instr.ld_st_imm,rt, dmem[addr]);
+
+	  //allow access to addr
+	  caches.access(addr);
+
+	  //Stats
+	  stats.numRegReads += 2;
+          stats.numMemReads++;
+          stats.numRegWrites++;
+
     break;
     //////////////////////////////////
     case STRBI:
@@ -493,6 +504,17 @@ switch(ldst_ops) {
     case STRBR:
           // need to implement
 	  // store register byte (register)
+	  int offset = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
+
+          addr = rf[ld_st.instr.ld_st_reg.rn] + offset*4;
+          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+
+          //allow access to addr
+          caches.access(addr);
+          //Stats
+          stats.numRegReads += 2;
+          stats.numMemWrites++;
+
     break;
     //////////////////////////////////
     case LDRBR:
