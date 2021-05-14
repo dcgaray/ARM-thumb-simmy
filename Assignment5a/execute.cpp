@@ -93,14 +93,14 @@ void setCarryOverflow (int num1, int num2, OFType oftype) {
         else {
             flags.C = 1;
         }
-}
-      // Shift doesn't set overflow
-break;
-/////////////////////////////////////////////
-default:
-cerr << "Bad OverFlow Type encountered." << __LINE__ << __FILE__ << endl;
-exit(1);
-}
+    }
+    // Shift doesn't set overflow
+    break;
+    /////////////////////////////////////////////
+  default:
+    cerr << "Bad OverFlow Type encountered." << __LINE__ << __FILE__ << endl;
+    exit(1);
+      }
 }
 
 //Okay, this function was completed by Ryan and the code was taken off of the 
@@ -247,7 +247,17 @@ void execute() {
     add_ops = decode(alu);
     switch(add_ops) {
         case ALU_LSLI:
-        break;
+          // I followed all of the instructions I found from the manuel in A7.7.67 LSL(Immediate)
+          rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
+
+          // Check to see if we need to set any of the flags.
+          setCarryOverflow(rf[alu.instr.lsli.rm], alu.instr.lsli.imm, OF_SHIFT);
+          setNegAndZero(rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
+
+          //Set stats
+          stats.numRegWrites++;
+          stats.numRegReads++;  //NOTE: This may be wrong, but it was only 1 register so...
+          break;
         ///////////////////////
         case ALU_ADDR:
           // needs stats and flags
