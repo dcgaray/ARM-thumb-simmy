@@ -582,9 +582,9 @@ case UNCOND:
   break;
 
 case LDM:
-decode(ldm);
+  decode(ldm);
       // need to implement
-break;
+  break;
 ////////////////////////////////////////
 ////////////////////////////////////////
 case STM:
