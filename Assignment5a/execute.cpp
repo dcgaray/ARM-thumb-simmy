@@ -35,11 +35,6 @@ ASPR flags;
 // flags for each instruction that does that. It only needs to take
 // one parameter as input, the result of whatever operation is executing
 
-void setNegAndZero(int res){
-  setNegativeFlag(res);
-  setZeroFlag(res);
-}
-
 void setNegativeFlag(int res){
   if(res < 0){
     flags.N = 1;
@@ -55,6 +50,10 @@ void setZeroFlag(int res){
   }
 }
 
+void setNegAndZero(int res){
+  setNegativeFlag(res);
+  setZeroFlag(res);
+}
 // This function is complete, you should not have to modify it
 void setCarryOverflow (int num1, int num2, OFType oftype) {
   switch (oftype) {
@@ -427,7 +426,6 @@ case LD_ST:
 ldst_ops = decode(ld_st);
 switch(ldst_ops) {
     case STRI:
-          // functionally complete, needs stats
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
 
@@ -440,18 +438,17 @@ switch(ldst_ops) {
     break;
     //////////////////////////////////
     case LDRI:
-    // functionally complete, needs stats
-    addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
-    rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+      addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
-    //allow access to addr
-    caches.access(addr);
+      //allow access to addr
+      caches.access(addr);
 
-    //Stats
-    stats.numRegReads++;
-    stats.numMemReads++;
-    stats.numRegWrites++;
-    break;
+      //Stats
+      stats.numRegReads++;
+      stats.numMemReads++;
+      stats.numRegWrites++;
+      break;
     //////////////////////////////////
     case STRR:
           // need to implement
@@ -471,28 +468,72 @@ switch(ldst_ops) {
     case LDRR:
           // need to implement
 	  // load register (register)
+	  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
+	  rf.write(ld_st.instr.ld_st_imm,rt, dmem[addr]);
+
+	  //allow access to addr
+	  caches.access(addr);
+
+	  //Stats
+	  stats.numRegReads += 2;
+          stats.numMemReads++;
+          stats.numRegWrites++;
+
     break;
     //////////////////////////////////
     case STRBI:
-          // need to implement
-	  // store reg base (immediate)
-    break;
-    //////////////////////////////////
+          //I based this model off of the original STRI given by Pantoja
+          // store reg base (immediate)
+          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+          dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
+          // allow cache access to addr
+          caches.access(addr);
+          //stats
+          stats.numRegReads += 2;
+          stats.numMemWrites++;
+          break;
+
     case LDRBI:
-          // need to implement
-	  // load register base (immediate)
-    break;
-    //////////////////////////////////
+          //This base is modeled off what was provided by Pantoja
+          // load register base (immediate)
+          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+          rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+          //allow access to addr
+          caches.access(addr);
+          //stats
+          stats.numRegReads++;
+          stats.numMemReads++;
+          stats.numRegWrites++;
+          break;
+
     case STRBR:
           // need to implement
 	  // store register byte (register)
+	  int offset = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
+
+          addr = rf[ld_st.instr.ld_st_reg.rn] + offset*4;
+          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+
+          //allow access to addr
+          caches.access(addr);
+          //Stats
+          stats.numRegReads += 2;
+          stats.numMemWrites++;
+
     break;
-    //////////////////////////////////
+
     case LDRBR:
-          // need to implement
-	  // load register signed byte (register)
-    break;
-    ///////////////////////////////////
+  	  // load register signed byte (register)
+      int offset = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
+      addr = rf[ld_st.instr.ld_st_imm.rn] + offset * 4;
+      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+      //allow access to adr
+      caches.access(addr);
+      //stats
+      stats.numRegReads++;
+      stats.numMemReads++;
+      stats.numRegWrites++;
+      break;
 }
 break;
 ////////////////////////////////
