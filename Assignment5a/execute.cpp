@@ -35,11 +35,6 @@ ASPR flags;
 // flags for each instruction that does that. It only needs to take
 // one parameter as input, the result of whatever operation is executing
 
-void setNegAndZero(int res){
-  setNegativeFlag(res);
-  setZeroFlag(res);
-}
-
 void setNegativeFlag(int res){
   if(res < 0){
     flags.N = 1;
@@ -55,6 +50,10 @@ void setZeroFlag(int res){
   }
 }
 
+void setNegAndZero(int res){
+  setNegativeFlag(res);
+  setZeroFlag(res);
+}
 // This function is complete, you should not have to modify it
 void setCarryOverflow (int num1, int num2, OFType oftype) {
   switch (oftype) {
@@ -256,24 +255,21 @@ void execute() {
         case ALU_LSLI:
           // I followed all of the instructions I found from the manuel in A7.7.67 LSL(Immediate)
           rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
-
           // Check to see if we need to set any of the flags.
           setCarryOverflow(rf[alu.instr.lsli.rm], alu.instr.lsli.imm, OF_SHIFT);
           setNegAndZero(rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
-
           //Set stats
           stats.numRegWrites++;
           stats.numRegReads++;  //NOTE: This may be wrong, but it was only 1 register so...
           break;
-        ///////////////////////
-        case ALU_ADDR:
-          // needs stats and flags
-          rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
 
+        case ALU_ADDR:
+          rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
           // Set OverFlow, Negative and Zero Flags as indicated by A7.74 Add (register)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
           setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
           setZeroFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+        
           //setNegAndZero(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
 
           //Set stats
@@ -283,7 +279,6 @@ void execute() {
 
         case ALU_SUBR:
           rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
-
           //set flags according to A7.7.172
           setCarryOverflow(rf[alu.instr.subr.rn],rf[alu.instr.subr.rm],OF_SUB);
           setNegativeFlag(rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
@@ -293,71 +288,68 @@ void execute() {
           stats.numRegWrites++;
           stats.numRegReads += 2;
           break;
-        ///////////////////////
-        case ALU_ADD3I:
-          // needs stats and flags
-          rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
 
-          
+        case ALU_ADD3I:
+          rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
           // Set OverFlow, Negative as indicated by A7.7.3 ADD (immediate)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
           setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
-
           //Set stats
           stats.numRegWrites++;
           stats.numRegReads++;
-
           break;
+
         case ALU_SUB3I:
           rf.write(alu.instr.sub3i.rd, rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
-          
           // Set OverFlow, Negative as indicated by A7.7.171 SUB (immediate)
           setCarryOverflow(rf[alu.instr.sub3i.rn], alu.instr.sub3i.imm ,OF_SUB);
           setNegativeFlag(rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
-
           //Set stats
           stats.numRegWrites++;
           stats.numRegReads++;
           break;
-        case ALU_MOV:
-          // needs stats and flags
-          rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
 
+        case ALU_MOV:
+          rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
           // Set Negative as indicated by A7.7.75
           setNegativeFlag(alu.instr.mov.imm);
           setZeroFlag(alu.instr.mov.imm);
-
           //Set stats
           stats.numRegWrites++;
-
           break;
         
         case ALU_CMP:
-
         // Set flags as indicated by A7.7.27
-        setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB);
+        setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB); // NOTE: 
         setNegativeFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
         setZeroFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
-
         //update stats
         stats.numRegReads++;
-
         break;
-        /////////////////////////
+
         case ALU_ADD8I:
-          // needs stats and flags
+        // needs stats and flags
         rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
+        // set overflows
+        setCarryOverflow(rf[alu.instr.add8i.rdn], alu.instr.add8i.imm, OF_ADD);
+        setNegAndZero(rf[alu.instr.cmp.rdn] - alu.instr.add8i.imm); 
+        stats.numRegReads++;
+        stats.numRegWrites++;
         break;
-        /////////////////////////
-        case ALU_SUB8I:
-        rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
 
+        case ALU_SUB8I:
+        // needs stats and flags
+        rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
+        // set overflows
+        setCarryOverflow(rf[alu.instr.sub8i.rdn], alu.instr.sub8i.imm, OF_SUB); 
+        setNegAndZero(rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
+        stats.numRegReads++;
+        stats.numRegWrites++;
         //Stats
         stats.numRegReads++;
         stats.numRegWrites++;
-
         break;
-        /////////////////////////
+
         default:
         cout << "instruction not implemented" << endl;
         exit(1);
@@ -434,7 +426,6 @@ case LD_ST:
 ldst_ops = decode(ld_st);
 switch(ldst_ops) {
     case STRI:
-          // functionally complete, needs stats
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
 
@@ -447,18 +438,17 @@ switch(ldst_ops) {
     break;
     //////////////////////////////////
     case LDRI:
-    // functionally complete, needs stats
-    addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
-    rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+      addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
-    //allow access to addr
-    caches.access(addr);
+      //allow access to addr
+      caches.access(addr);
 
-    //Stats
-    stats.numRegReads++;
-    stats.numMemReads++;
-    stats.numRegWrites++;
-    break;
+      //Stats
+      stats.numRegReads++;
+      stats.numMemReads++;
+      stats.numRegWrites++;
+      break;
     //////////////////////////////////
     case STRR:
           // need to implement
@@ -492,15 +482,30 @@ switch(ldst_ops) {
     break;
     //////////////////////////////////
     case STRBI:
-          // need to implement
-	  // store reg base (immediate)
-    break;
-    //////////////////////////////////
+          //I based this model off of the original STRI given by Pantoja
+          // store reg base (immediate)
+          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+          dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
+          // allow cache access to addr
+          caches.access(addr);
+          //stats
+          stats.numRegReads += 2;
+          stats.numMemWrites++;
+          break;
+
     case LDRBI:
-          // need to implement
-	  // load register base (immediate)
-    break;
-    //////////////////////////////////
+          //This base is modeled off what was provided by Pantoja
+          // load register base (immediate)
+          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+          rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+          //allow access to addr
+          caches.access(addr);
+          //stats
+          stats.numRegReads++;
+          stats.numMemReads++;
+          stats.numRegWrites++;
+          break;
+
     case STRBR:
           // need to implement
 	  // store register byte (register)
@@ -516,12 +521,19 @@ switch(ldst_ops) {
           stats.numMemWrites++;
 
     break;
-    //////////////////////////////////
+
     case LDRBR:
-          // need to implement
-	  // load register signed byte (register)
-    break;
-    ///////////////////////////////////
+  	  // load register signed byte (register)
+      int offset = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
+      addr = rf[ld_st.instr.ld_st_imm.rn] + offset * 4;
+      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+      //allow access to adr
+      caches.access(addr);
+      //stats
+      stats.numRegReads++;
+      stats.numMemReads++;
+      stats.numRegWrites++;
+      break;
 }
 break;
 ////////////////////////////////
