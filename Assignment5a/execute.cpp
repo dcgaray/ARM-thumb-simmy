@@ -265,21 +265,22 @@ void execute() {
           break;
 
         case ALU_SUBR:
-        rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+          rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
 
-        //set flags according to A7.7.172
-        setCarryOverflow(rf[alu.instr.subr.rn],rf[alu.instr.subr.rm],OF_SUB);
-        setNegativeFlag(rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
-        setZeroFlag(rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+          //set flags according to A7.7.172
+          setCarryOverflow(rf[alu.instr.subr.rn],rf[alu.instr.subr.rm],OF_SUB);
+          setNegativeFlag(rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+          setZeroFlag(rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
 
-        //update stats
-        stats.numRegWrites++;
-        stats.numRegReads += 2;
-        break;
+          //update stats
+          stats.numRegWrites++;
+          stats.numRegReads += 2;
+          break;
         ///////////////////////
         case ALU_ADD3I:
           // needs stats and flags
           rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
+
           
           // Set OverFlow, Negative as indicated by A7.7.3 ADD (immediate)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
@@ -313,6 +314,7 @@ void execute() {
           stats.numRegWrites++;
 
           break;
+        
         case ALU_CMP:
 
         // Set flags as indicated by A7.7.27
