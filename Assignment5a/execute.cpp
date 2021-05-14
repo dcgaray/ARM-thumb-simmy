@@ -252,8 +252,7 @@ void execute() {
         ///////////////////////
         case ALU_ADDR:
           // needs stats and flags
-          
-	  rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
 
           // Set OverFlow, Negative and Zero Flags as indicated by A7.74 Add (register)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
@@ -264,14 +263,24 @@ void execute() {
           stats.numRegWrites++;
           stats.numRegReads += 2;
           break;
-        
-	case ALU_SUBR:
-        break;
+
+        case ALU_SUBR:
+          rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+
+          //set flags according to A7.7.172
+          setCarryOverflow(rf[alu.instr.subr.rn],rf[alu.instr.subr.rm],OF_SUB);
+          setNegativeFlag(rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+          setZeroFlag(rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+
+          //update stats
+          stats.numRegWrites++;
+          stats.numRegReads += 2;
+          break;
         ///////////////////////
         case ALU_ADD3I:
           // needs stats and flags
-          
-	  rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
+          rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
+
           
           // Set OverFlow, Negative as indicated by A7.7.3 ADD (immediate)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
@@ -305,8 +314,17 @@ void execute() {
           stats.numRegWrites++;
 
           break;
-
+        
         case ALU_CMP:
+
+        // Set flags as indicated by A7.7.27
+        setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB);
+        setNegativeFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
+        setZeroFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
+
+        //update stats
+        stats.numRegReads++;
+
         break;
         /////////////////////////
         case ALU_ADD8I:
@@ -315,6 +333,12 @@ void execute() {
         break;
         /////////////////////////
         case ALU_SUB8I:
+        rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
+
+        //Stats
+        stats.numRegReads++;
+        stats.numRegWrites++;
+
         break;
         /////////////////////////
         default:
@@ -396,16 +420,42 @@ switch(ldst_ops) {
           // functionally complete, needs stats
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
+
+    //allow access to addr
+    caches.access(addr);
+
+    //Stats
+    stats.numRegReads += 2;
+    stats.numMemWrites++;
     break;
     //////////////////////////////////
     case LDRI:
           // functionally complete, needs stats
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+
+    //allow access to addr
+    caches.access(addr);
+
+    //Stats
+    stats.numRegReads++;
+    stats.numMemReads++;
+    stats.numRegWrites++;
     break;
     //////////////////////////////////
     case STRR:
           // need to implement
+          addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
+          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+
+          //allow access to addr
+          caches.access(addr);
+          
+          //Stats
+          stats.numRegReads += 2;
+          stats.numMemWrites++;
+
+
     break;
     //////////////////////////////////
     case LDRR:
