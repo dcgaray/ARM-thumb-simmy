@@ -36,11 +36,18 @@ ASPR flags;
 // one parameter as input, the result of whatever operation is executing
 
 void setNegAndZero(int res){
+  setNegativeFlag(res);
+  setZeroFlag(res);
+}
+
+void setNegativeFlag(int res){
   if(res < 0){
     flags.N = 1;
   }else{
     flags.N = 0;
   }
+}
+void setZeroFlag(int res){
   if(res == 0){
     flags.Z = 0;
   }else{
@@ -263,6 +270,9 @@ void execute() {
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
           setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
           setZeroFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+        
+          //setNegAndZero(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+
           //Set stats
           stats.numRegWrites++;
           stats.numRegReads += 2;
@@ -430,7 +440,7 @@ switch(ldst_ops) {
     break;
     //////////////////////////////////
     case LDRI:
-          // functionally complete, needs stats
+    // functionally complete, needs stats
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
@@ -460,22 +470,27 @@ switch(ldst_ops) {
     //////////////////////////////////
     case LDRR:
           // need to implement
+	  // load register (register)
     break;
     //////////////////////////////////
     case STRBI:
           // need to implement
+	  // store reg base (immediate)
     break;
     //////////////////////////////////
     case LDRBI:
           // need to implement
+	  // load register base (immediate)
     break;
     //////////////////////////////////
     case STRBR:
           // need to implement
+	  // store register byte (register)
     break;
     //////////////////////////////////
     case LDRBR:
           // need to implement
+	  // load register signed byte (register)
     break;
     ///////////////////////////////////
 }
