@@ -480,11 +480,13 @@ switch(ldst_ops) {
       //allow access to addr
       caches.access(addr);
 
+    
       //Stats
       stats.numRegReads += 2;
       stats.numMemReads++;
       stats.numRegWrites++;
       break;
+
     //////////////////////////////////
     case STRBI:
           //I based this model off of the original STRI given by Pantoja
