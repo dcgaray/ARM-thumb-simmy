@@ -396,39 +396,38 @@ break;
 /////////////////////////////////
 /////////////////////////////////
 case DP:
-dp_ops = decode(dp);
-switch(dp_ops) {
+  dp_ops = decode(dp);
+  switch(dp_ops) {
     case DP_CMP:
-          // need to implement
+      // need to implement
       setNegativeFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);
       setCarryOverflow(rf[dp.instr.DP_Instr.rdn] ,rf[dp.instr.DP_Instr.rm],OF_SUB);
 
       stats.numRegReads += 2;
-    break;
-}
-break;
+      break;
+    }
+  break;
 /////////////////////////////////
 /////////////////////////////////
 case SPECIAL:
-sp_ops = decode(sp);
-switch(sp_ops) {
+  sp_ops = decode(sp);
+  switch(sp_ops) {
     case SP_MOV:
-          // needs stats and flags
-    rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
-    setCarryOverflow(sp.instr.mov.d,3,OF_SHIFT);
-    break;
-    ///////////////////////////////////////
+      // needs stats and flags
+      rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
+      setCarryOverflow(sp.instr.mov.d,3,OF_SHIFT);
+      break;
+      ///////////////////////////////////////
     case SP_ADD:
-    break;
-    ///////////////////////////////////////
+      break;
+      ///////////////////////////////////////
     case SP_CMP:
-          // need to implement these
-    break;
-    ////////////////////////////////////////
-}
-break;
-/////////////////////////////////
-/////////////////////////////////
+      // need to implement these
+      break;
+      ////////////////////////////////////////
+  }
+  break;
+  
 case LD_ST:
       // You'll want to use these load and store models
       // to implement ldrb/strb, ldm/stm and push/pop
