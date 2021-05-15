@@ -9,6 +9,10 @@
 #define LR rf[LR_REG]
 #define SP rf[SP_REG]
 
+
+#define BYTE 8
+#define CELL 4
+
 Stats stats;
 Caches caches(0);
 int offset_byteReg;
@@ -548,22 +552,105 @@ break;
 case MISC:
 misc_ops = decode(misc);
 switch(misc_ops) {
-    case MISC_PUSH:
+    case MISC_PUSH:{
           // need to implement
-    break;
+
+          int count = 0;
+          unsigned int i;
+
+          for (i = 0; i < BYTE; i++) {
+            count += (misc.instr.push.reg_list >> i) & 1;
+          }
+          
+          BitCount = count + misc.instr.push.m;
+
+          //address *4 cause 4 bits per
+          addr = SP - CELL * BitCount;
+
+          //for each of the 8 bits,  if the bit is 1, write to memory.
+          for (i = 0; i < BYTE; i++) {
+             if ((misc.instr.push.reg_list >> i) & 1) {
+                dmem.write(addr, rf[i]);
+                caches.access(addr);
+
+                //access cache
+                addr += CELL;
+
+                //update stats
+                stats.numRegReads++;
+                stats.numMemWrites++;
+             }            
+          }
+          /* Write to PC register if the m bit is set */
+          if (misc.instr.push.m) {
+             dmem.write(addr, LR);
+
+             //access cache
+             caches.access(addr);
+
+             //update stats
+             stats.numRegReads++;
+             stats.numMemWrites++;
+          }
+
+          rf.write(SP_REG, SP - BitCount * CELL);
+
+          //update stats
+          stats.numRegWrites++;
+          stats.numRegReads++;
+          }break;
     ////////////////////////////////////
-    case MISC_POP:
-          // need to implement
-    break;
+    case MISC_POP:{
+    // need to implement
+
+    int count = 0;
+    unsigned int i;
+
+    for (i = 0; i < BYTE; i++) {
+        count += (misc.instr.pop.reg_list >> i) & 1;
+    }
+          
+    BitCount = count + misc.instr.pop.m;
+    addr = SP;
+
+    //Check each bit 
+    for (i = 0; i < BYTE; i++) {
+        if ((misc.instr.pop.reg_list >> i) & 1) {
+           rf.write(i, dmem[addr]);
+           caches.access(addr);
+           addr += CELL;
+        }            
+    }
+    
+    /* Write to PC register if the m bit is set */
+    if (misc.instr.pop.m) {
+       rf.write(PC_REG, dmem[addr]);
+       caches.access(addr);
+    }
+
+    rf.write(SP_REG, SP + BitCount * CELL);
+    
+    //Update Stats
+    stats.numMemReads += BitCount;
+    stats.numRegReads++;
+    stats.numRegWrites += BitCount + 1; 
+          
+    }break;
     ////////////////////////////////////  
     case MISC_SUB:
-          // functionally complete, needs stats
-    rf.write(SP_REG, SP - (misc.instr.sub.imm*4));
-    break;
+        // functionally complete, needs stats
+        rf.write(SP_REG, SP - (misc.instr.sub.imm*4));
+        stats.numRegWrites++;
+        stats.numRegReads++;
+        break;
     ////////////////////////////////////  
     case MISC_ADD:
           // functionally complete, needs stats
     rf.write(SP_REG, SP + (misc.instr.add.imm*4));
+
+    //update stats
+    stats.numRegWrites++;
+    stats.numRegReads++;
     break;
     ///////////////////////////////////
 }
@@ -577,6 +664,10 @@ case COND:
   // needs stats
   if (checkCondition(cond.instr.b.cond)){
     rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
+    
+    //Stats update
+    stats.numRegWrites++;
+    stats.numRegReads++;
   }
   break;
   
