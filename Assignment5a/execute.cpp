@@ -309,6 +309,7 @@ void execute() {
           // Set OverFlow, Negative as indicated by A7.7.171 SUB (immediate)
           setCarryOverflow(rf[alu.instr.sub3i.rn], alu.instr.sub3i.imm ,OF_SUB);
           setNegativeFlag(rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
+          setZeroFlag(rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
           //Set stats
           stats.numRegWrites++;
           stats.numRegReads++;
@@ -325,7 +326,7 @@ void execute() {
         
         case ALU_CMP:
         // Set flags as indicated by A7.7.27
-        setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB); // NOTE: 
+        setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB); 
         setNegativeFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
         setZeroFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
         //update stats
@@ -337,7 +338,7 @@ void execute() {
         rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
         // set overflows
         setCarryOverflow(rf[alu.instr.add8i.rdn], alu.instr.add8i.imm, OF_ADD);
-        setNegAndZero(rf[alu.instr.cmp.rdn] - alu.instr.add8i.imm); 
+        setNegAndZero(rf[alu.instr.add8i.rdn] - alu.instr.add8i.imm); 
         stats.numRegReads++;
         stats.numRegWrites++;
         break;
@@ -402,6 +403,7 @@ switch(dp_ops) {
     case DP_CMP:
           // need to implement
       setNegativeFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);
+      setZeroFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);
       setCarryOverflow(rf[dp.instr.DP_Instr.rdn] ,rf[dp.instr.DP_Instr.rm],OF_SUB);
 
       stats.numRegReads += 2;
@@ -416,14 +418,26 @@ switch(sp_ops) {
     case SP_MOV:
           // needs stats and flags
     rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
-    setCarryOverflow(sp.instr.mov.d,3,OF_SHIFT);
+    setNegativeFlag(rf[sp.instr.mov.rm]);
+    setZeroFlag(rf[sp.instr.mov.rm]);
+
+    //update stats
+    stats.numRegWrites++;
+    stats.numRegReads++;
+
     break;
     ///////////////////////////////////////
     case SP_ADD:
     break;
     ///////////////////////////////////////
     case SP_CMP:
-          // need to implement these
+    //set flags      
+    setZeroFlag(rf[((sp.instr.cmp.d << 3 ) | sp.instr.cmp.rd)] - rf[sp.instr.cmp.rm]);
+    setNegativeFlag(rf[((sp.instr.cmp.d << 3 ) | sp.instr.cmp.rd)] - rf[sp.instr.cmp.rm]);
+    setCarryOverflow(rf[((sp.instr.cmp.d << 3 ) | sp.instr.cmp.rd)], rf[sp.instr.cmp.rm], OF_SUB);
+          
+    //update stats
+    stats.numRegReads += 2;
     break;
     ////////////////////////////////////////
 }
@@ -469,7 +483,7 @@ switch(ldst_ops) {
           caches.access(addr);
           
           //Stats
-          stats.numRegReads += 2;
+          stats.numRegReads += 3;
           stats.numMemWrites++;
 
 
@@ -640,6 +654,8 @@ switch(misc_ops) {
     case MISC_SUB:
         // functionally complete, needs stats
         rf.write(SP_REG, SP - (misc.instr.sub.imm*4));
+
+        //write stats
         stats.numRegWrites++;
         stats.numRegReads++;
         break;
