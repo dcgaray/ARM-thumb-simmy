@@ -258,6 +258,7 @@ void execute() {
     add_ops = decode(alu);
     switch(add_ops) {
         case ALU_LSLI:
+            cout << "--------------------------LSLI----------------------" << endl;
           // I followed all of the instructions I found from the manuel in A7.7.67 LSL(Immediate)
           rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
           // Check to see if we need to set any of the flags.
@@ -269,6 +270,7 @@ void execute() {
           break;
 
         case ALU_ADDR:
+        //cout << "--------------------------ALU_ADDR----------------------" << endl;
           rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
           // Set OverFlow, Negative and Zero Flags as indicated by A7.74 Add (register)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
@@ -283,6 +285,7 @@ void execute() {
           break;
 
         case ALU_SUBR:
+            cout << "--------------------------ALU_SUBR----------------------" << endl;
           rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
           //set flags according to A7.7.172
           setCarryOverflow(rf[alu.instr.subr.rn],rf[alu.instr.subr.rm],OF_SUB);
@@ -295,16 +298,19 @@ void execute() {
           break;
 
         case ALU_ADD3I:
+        //cout << "--------------------------ALU_ADD3I----------------------" << endl;
           rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
           // Set OverFlow, Negative as indicated by A7.7.3 ADD (immediate)
           setCarryOverflow(rf[alu.instr.addr.rn],rf[alu.instr.addr.rm],OF_ADD);
           setNegativeFlag(rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+
           //Set stats
           stats.numRegWrites++;
           stats.numRegReads++;
           break;
 
         case ALU_SUB3I:
+        cout << "--------------------------ALU_SUB3I----------------------" << endl;
           rf.write(alu.instr.sub3i.rd, rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
           // Set OverFlow, Negative as indicated by A7.7.171 SUB (immediate)
           setCarryOverflow(rf[alu.instr.sub3i.rn], alu.instr.sub3i.imm ,OF_SUB);
@@ -316,6 +322,7 @@ void execute() {
           break;
 
         case ALU_MOV:
+        //cout << "--------------------------ALU_MOV----------------------" << endl;
           rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
           // Set Negative as indicated by A7.7.75
           setNegativeFlag(alu.instr.mov.imm);
@@ -325,8 +332,9 @@ void execute() {
           break;
         
         case ALU_CMP:
+        //cout << "--------------------------ALU_CMP----------------------" << endl;
         // Set flags as indicated by A7.7.27
-        setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB); 
+        setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB);
         setNegativeFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
         setZeroFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
         //update stats
@@ -334,6 +342,7 @@ void execute() {
         break;
 
         case ALU_ADD8I:
+        //cout << "--------------------------ALU_ADD8I----------------------" << endl;
         // needs stats and flags
         rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
         // set overflows
@@ -344,6 +353,7 @@ void execute() {
         break;
 
         case ALU_SUB8I:
+        cout << "--------------------------SLU_SUB8I----------------------" << endl;
         // needs stats and flags
         rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
         // set overflows
@@ -402,6 +412,7 @@ dp_ops = decode(dp);
 switch(dp_ops) {
     case DP_CMP:
           // need to implement
+          cout << "--------------------------DP_CMP----------------------" << endl;
       setNegativeFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);
       setZeroFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);
       setCarryOverflow(rf[dp.instr.DP_Instr.rdn] ,rf[dp.instr.DP_Instr.rm],OF_SUB);
@@ -416,8 +427,11 @@ case SPECIAL:
 sp_ops = decode(sp);
 switch(sp_ops) {
     case SP_MOV:
+    //cout << "--------------------------SP_MOV----------------------" << endl;
           // needs stats and flags
     rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
+
+    //set flag
     setNegativeFlag(rf[sp.instr.mov.rm]);
     setZeroFlag(rf[sp.instr.mov.rm]);
 
@@ -428,9 +442,17 @@ switch(sp_ops) {
     break;
     ///////////////////////////////////////
     case SP_ADD:
+        cout << "--------------------------SP_ADD----------------------" << endl;
+        setZeroFlag(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)] + rf[sp.instr.add.rm]);
+        setNegativeFlag(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)] + rf[sp.instr.add.rm]);
+        setCarryOverflow(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)], rf[sp.instr.add.rm], OF_ADD);
+        rf.write((sp.instr.add.d << 3 ) | sp.instr.add.rd, rf[(sp.instr.add.d << 3 ) | sp.instr.add.rd] + rf[sp.instr.add.rm]);
+        stats.numRegWrites++;
+        stats.numRegReads += 2;
     break;
     ///////////////////////////////////////
     case SP_CMP:
+    cout << "--------------------------SP_CMP----------------------" << endl;
     //set flags      
     setZeroFlag(rf[((sp.instr.cmp.d << 3 ) | sp.instr.cmp.rd)] - rf[sp.instr.cmp.rm]);
     setNegativeFlag(rf[((sp.instr.cmp.d << 3 ) | sp.instr.cmp.rd)] - rf[sp.instr.cmp.rm]);
@@ -450,6 +472,7 @@ case LD_ST:
 ldst_ops = decode(ld_st);
 switch(ldst_ops) {
     case STRI:
+    //cout << "--------------------------STRI----------------------" << endl;
     addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
     dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
   
@@ -462,6 +485,7 @@ switch(ldst_ops) {
     break;
     //////////////////////////////////
     case LDRI:
+      //cout << "--------------------------LDRI----------------------" << endl;
       addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
       rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
@@ -475,6 +499,7 @@ switch(ldst_ops) {
       break;
     //////////////////////////////////
     case STRR:
+          cout << "--------------------------STRR----------------------" << endl;
           // need to implement
           addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
           dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
@@ -490,6 +515,7 @@ switch(ldst_ops) {
     break;
     //////////////////////////////////
     case LDRR:
+        cout << "--------------------------LDRR----------------------" << endl;
           // need to implement
       // load register (register)
       addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
@@ -507,18 +533,21 @@ switch(ldst_ops) {
 
     //////////////////////////////////
     case STRBI:
-          //I based this model off of the original STRI given by Pantoja
-          // store reg base (immediate)
-          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
-          dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
-          // allow cache access to addr
-          caches.access(addr);
-          //stats
-          stats.numRegReads += 2;
-          stats.numMemWrites++;
-          break;
+
+        cout << "--------------------------STRBI----------------------" << endl;    
+        addr = rf[ld_st.instr.ld_st_reg.rn] + ld_st.instr.ld_st_imm.imm;
+        temp = dmem[addr];
+        temp.set_data_ubyte4(0, rf[ld_st.instr.ld_st_reg.rt] & 0xFF);
+        dmem.write(addr, temp);
+
+        caches.access(addr);
+
+        stats.numRegReads += 2;
+        stats.numMemWrites++;
+        break;
 
     case LDRBI:
+        cout << "--------------------------LDRBI----------------------" << endl; 
           //This base is modeled off what was provided by Pantoja
           // load register base (immediate)
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
@@ -533,6 +562,7 @@ switch(ldst_ops) {
 
     case STRBR:
           // need to implement
+          cout << "--------------------------STRBR----------------------" << endl; 
 	  // store register byte (register)
 	       offset_byteReg = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
 
@@ -548,6 +578,7 @@ switch(ldst_ops) {
     break;
 
     case LDRBR:
+    cout << "--------------------------LDRBR----------------------" << endl; 
   	  // load register signed byte (register)
       offset_byteReg = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
       addr = rf[ld_st.instr.ld_st_imm.rn] + offset_byteReg * 4;
@@ -675,6 +706,7 @@ break;
 /////////////////////////////////////
 case COND:
   decode(cond);
+  //cout << "--------------------------COND----------------------" << endl; 
   // Once you've completed the checkCondition function,
   // this should work for all your conditional branches.
   // needs stats
@@ -690,19 +722,22 @@ case COND:
 case UNCOND:
   // Essentially the same as the conditional branches, but with no
   // condition check, and an 11-bit immediate field
+  //cout << "--------------------------UNCOND----------------------" << endl; 
   decode(uncond);
-  rf.write(PC_REG, PC + 2 * signExtend11to32ui(cond.instr.b.imm) + 2);
+  rf.write(PC_REG, PC + (2 * signExtend11to32ui(uncond.instr.b.imm) + 2));
   break;
 
 case LDM:
   decode(ldm);
       // need to implement
+      cout << "--------------------------LDM----------------------" << endl;
   break;
 ////////////////////////////////////////
 ////////////////////////////////////////
 case STM:
 decode(stm);
       // need to implement
+      cout << "--------------------------STM----------------------" << endl;
 break;
 ////////////////////////////////////////
 ////////////////////////////////////////
