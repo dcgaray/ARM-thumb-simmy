@@ -49,9 +49,9 @@ void setNegativeFlag(int res){
 }
 void setZeroFlag(int res){
   if(res == 0){
-    flags.Z = 0;
-  }else{
     flags.Z = 1;
+  }else{
+    flags.Z = 0;
   }
 }
 
