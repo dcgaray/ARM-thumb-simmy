@@ -676,6 +676,10 @@ case UNCOND:
   // condition check, and an 11-bit immediate field
   decode(uncond);
   rf.write(PC_REG, PC + 2 * signExtend11to32ui(cond.instr.b.imm) + 2);
+  
+  //Stats update
+  stats.numRegWrites++;
+  stats.numRegReads++;
   break;
 
 case LDM:
