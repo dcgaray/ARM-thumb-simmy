@@ -72,7 +72,7 @@ void setCarryOverflow (int num1, int num2, OFType oftype) {
         flags.V = 1;
     }
     break;
-    ////////////////////////////////////////
+  
     case OF_SUB:
     if (num1 >= num2) {
         flags.C = 1;
@@ -90,7 +90,7 @@ void setCarryOverflow (int num1, int num2, OFType oftype) {
         flags.V = 1;
     }
     break;
-    ///////////////////////////////////////////
+
     case OF_SHIFT:
       // C flag unaffected for shifts by zero
     if (num2 != 0) {
@@ -103,7 +103,7 @@ void setCarryOverflow (int num1, int num2, OFType oftype) {
     }
     // Shift doesn't set overflow
     break;
-    /////////////////////////////////////////////
+
   default:
     cerr << "Bad OverFlow Type encountered." << __LINE__ << __FILE__ << endl;
     exit(1);
@@ -119,90 +119,89 @@ static int checkCondition(unsigned short cond) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case NE:
       if (flags.Z == 0) {
           return TRUE;
       }
     break;
-    ////////////////////////
+
     case CS:
       if (flags.C == 1) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case CC:
       if (flags.C == 0) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case MI:
       if (flags.N == 1) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case PL:
       if (flags.N == 0) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case VS:
       if (flags.V == 1) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case VC:
       if (flags.V == 0) {
         return TRUE;
       }
       break;
-    ////////////////////////
+
     case HI:
       if (flags.C == 1 && flags.Z == 0) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case LS:
       if (flags.C == 0 || flags.Z == 1) {
         return TRUE;
       }
       break;
-    ////////////////////////
+
     case GE:
       if (flags.N == flags.V) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case LT:
       if (flags.N != flags.V) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case GT:
       if (flags.Z == 0 && flags.N == flags.V) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case LE:
       if (flags.Z == 1 or flags.N != flags.V) {
           return TRUE;
       }
       break;
-    ////////////////////////
+
     case AL:
       return TRUE;
       break;
-    ////////////////////////
-}
+  }
 return FALSE;
 }
 
