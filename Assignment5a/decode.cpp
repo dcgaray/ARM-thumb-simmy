@@ -499,11 +499,17 @@ BL_Ops decode (const BL_Type data) {
 
 int decode (const LDM_Type data) {
   // 315: add code to print ldm 
+  if (opts.instrs){
+    //TODO: IMPLEMENT
+  }
   return LDM;
 }
 
 int decode (const STM_Type data) {
   // 315: add code to print ldm 
+  if (opts.instrs){
+    //TODO: IMPLEMENT
+  }
   return STM;
 }
 

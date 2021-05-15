@@ -545,38 +545,43 @@ break;
 ////////////////////////////////
 ////////////////////////////////
 case MISC:
-misc_ops = decode(misc);
-switch(misc_ops) {
+  misc_ops = decode(misc);
+  switch(misc_ops) {
     case MISC_PUSH:
-          // need to implement
-    break;
-    ////////////////////////////////////
+      // need to implement
+      break;
+
     case MISC_POP:
-          // need to implement
-    break;
-    ////////////////////////////////////  
+      // need to implement
+      break;
+
     case MISC_SUB:
-          // functionally complete, needs stats
-    rf.write(SP_REG, SP - (misc.instr.sub.imm*4));
-    break;
-    ////////////////////////////////////  
+      // functionally complete, needs stats
+      rf.write(SP_REG, SP - (misc.instr.sub.imm*4));
+      //stats
+      stats.numRegReads++;
+      stats.numRegWrites++;
+      break;
+
     case MISC_ADD:
-          // functionally complete, needs stats
-    rf.write(SP_REG, SP + (misc.instr.add.imm*4));
-    break;
-    ///////////////////////////////////
-}
-break;
-/////////////////////////////////////
-/////////////////////////////////////
+      // functionally complete, needs stats
+      rf.write(SP_REG, SP + (misc.instr.add.imm*4));
+      //stats
+      stats.numRegReads++;
+      stats.numRegWrites++;
+      break;
+  }
+  break;
+
 case COND:
   decode(cond);
   // Once you've completed the checkCondition function,
   // this should work for all your conditional branches.
-  // needs stats
   if (checkCondition(cond.instr.b.cond)){
     rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
   }
+  // Stats
+  stats.numRegWrites++;
   break;
   
 case UNCOND:
@@ -584,6 +589,8 @@ case UNCOND:
   // condition check, and an 11-bit immediate field
   decode(uncond);
   rf.write(PC_REG, PC + 2 * signExtend11to32ui(cond.instr.b.imm) + 2);
+  // Stats
+  stats.numRegWrites++;
   break;
 
 case LDM:
@@ -593,43 +600,44 @@ case LDM:
 ////////////////////////////////////////
 ////////////////////////////////////////
 case STM:
-decode(stm);
+  decode(stm);
       // need to implement
 break;
 ////////////////////////////////////////
 ////////////////////////////////////////
 case LDRL:
-      // This instruction is complete, nothing needed
-decode(ldrl);
-      // Need to check for alignment by 4
-if (PC & 2) {
-    addr = PC + 2 + (ldrl.instr.ldrl.imm)*4;
-}
-else {
-    addr = PC + (ldrl.instr.ldrl.imm)*4;
-}
-      // Requires two consecutive imem locations pieced together
-      temp = imem[addr] | (imem[addr+2]<<16);  // temp is a Data32
-      rf.write(ldrl.instr.ldrl.rt, temp);
+    // This instruction is complete, nothing needed
+    decode(ldrl);
+    // Need to check for alignment by 4
+    if (PC & 2) {
+      addr = PC + 2 + (ldrl.instr.ldrl.imm)*4;
+    }
+    else {
+      addr = PC + (ldrl.instr.ldrl.imm)*4;
+    }
+    // Requires two consecutive imem locations pieced together
+    temp = imem[addr] | (imem[addr+2]<<16);  // temp is a Data32
+    rf.write(ldrl.instr.ldrl.rt, temp);
 
-      // One write for updated reg
-      stats.numRegWrites++;
-      // One read of the PC
-      stats.numRegReads++;
-      // One mem read, even though it's imem, and there's two of them
-      stats.numMemReads++;
-      break;
-      //////////////////////////////////
-      case ADD_SP:
-      // needs stats
-      decode(addsp);
-      rf.write(addsp.instr.add.rd, SP + (addsp.instr.add.imm*4));
-      break;
-      ///////////////////////////////////
-      default:
-      cout << "[ERROR] Unknown Instruction to be executed" << endl;
-      exit(1);
-      break;
-     //////////////////////// 
+    // One write for updated reg
+    stats.numRegWrites++;
+    // One read of the PC
+    stats.numRegReads++;
+    // One mem read, even though it's imem, and there's two of them
+    stats.numMemReads++;
+    break;
+
+case ADD_SP:
+    decode(addsp);
+    rf.write(addsp.instr.add.rd, SP + (addsp.instr.add.imm*4));
+    //stats
+    stats.numRegWrites++;
+    break;
+
+default:
+  cout << "[ERROR] Unknown Instruction to be executed" << endl;
+  exit(1);
+  break;
+
   }
 }
