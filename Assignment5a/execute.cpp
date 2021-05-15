@@ -475,8 +475,11 @@ switch(ldst_ops) {
       // load register (register)
       addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
       rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+
+
       //allow access to addr
       caches.access(addr);
+    
       //Stats
       stats.numRegReads += 2;
       stats.numMemReads++;
