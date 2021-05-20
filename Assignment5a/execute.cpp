@@ -695,7 +695,6 @@ case COND:
     stats.numRegReads++;
   }
   // Stats
-  stats.numRegWrites++;
   break;
   
 case UNCOND:
@@ -704,6 +703,7 @@ case UNCOND:
   decode(uncond);
   rf.write(PC_REG, PC + 2 * signExtend11to32ui(cond.instr.b.imm) + 2);
   // Stats
+  stats.numRegReads++;
   stats.numRegWrites++;
   break;
 
@@ -745,6 +745,7 @@ case ADD_SP:
     decode(addsp);
     rf.write(addsp.instr.add.rd, SP + (addsp.instr.add.imm*4));
     //stats
+    stats.numRegReads++;
     stats.numRegWrites++;
     break;
 

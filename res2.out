@@ -1,4 +1,5 @@
-./thumbsim -i -s -d -f inputs/fib.sim
+./thumbsim -p -i -d -f inputs/fib.sim
+Instructions:
 Starting at PC 83ec
 push {r7, lr}
 sub sp, #16
@@ -219,15 +220,3 @@ RF:
 0
 0
 0
-Total number of dynamic instructions: 0
-Number of Memory Reads: 58
-Number of Memory Writes: 42
-Number of Register Reads: 189
-Number of Register Writes: 94
-Branches: 
-  Forward:
-    Taken: 0
-    Not taken: 0
-  Backward:
-    Taken: 0
-    Not taken: 0
