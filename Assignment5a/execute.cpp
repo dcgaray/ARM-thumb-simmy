@@ -15,7 +15,7 @@
 
 Stats stats;
 Caches caches(0);
-int offset_byteReg;
+//int offset_byteReg;
 
 // CPE 315: you'll need to implement a custom sign-extension function
 // in addition to the ones given below, specifically for the unconditional
@@ -516,22 +516,26 @@ switch(ldst_ops) {
           break;
 
     case STRBR:
-          // need to implement
+    // need to implement
 	  // store register byte (register)
-	       offset_byteReg = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
+         int offset_byteReg;
+	
+        //Given that this is register based, no LSL # was specified so its a LSL by 0
+        offset_byteReg = ld_st.instr.ld_st_reg.rm << 0;
+        addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg*4;
 
-          addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg*4;
-          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+        dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
 
-          //allow access to addr
-          caches.access(addr);
-          //Stats
-          stats.numRegReads += 2;
-          stats.numMemWrites++;
-
+        //allow access to addr
+        caches.access(addr);
+        //Stats
+        stats.numRegReads += 2;
+        stats.numMemWrites++;
     break;
 
     case LDRBR:
+      int offset_byteReg;
+
   	  // load register signed byte (register)
       offset_byteReg = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
       addr = rf[ld_st.instr.ld_st_imm.rn] + offset_byteReg * 4;
