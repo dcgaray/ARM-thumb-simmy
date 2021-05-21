@@ -49,9 +49,9 @@ void setNegativeFlag(int res){
 }
 void setZeroFlag(int res){
   if(res == 0){
-    flags.Z = 0;
-  }else{
     flags.Z = 1;
+  }else{
+    flags.Z = 0;
   }
 }
 
@@ -702,9 +702,10 @@ case UNCOND:
   // condition check, and an 11-bit immediate field
   decode(uncond);
   rf.write(PC_REG, PC + 2 * signExtend11to32ui(cond.instr.b.imm) + 2);
-  // Stats
-  stats.numRegReads++;
+
+  //Stats update
   stats.numRegWrites++;
+  stats.numRegReads++
   break;
 
 case LDM:
