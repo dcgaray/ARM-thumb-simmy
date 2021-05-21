@@ -15,7 +15,7 @@
 
 Stats stats;
 Caches caches(0);
-//int offset_byteReg;
+int offset_byteReg;
 
 // CPE 315: you'll need to implement a custom sign-extension function
 // in addition to the ones given below, specifically for the unconditional
@@ -518,7 +518,6 @@ switch(ldst_ops) {
     case STRBR:
     // need to implement
 	  // store register byte (register)
-        int offset_byteReg;
 	
         //Given that this is register based, no LSL # was specified so its a LSL by 0
         offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
@@ -534,7 +533,6 @@ switch(ldst_ops) {
     break;
 
     case LDRBR:
-      int offset_byteReg;
 
       //Given that this is register based, no LSL # was specified so its a LSL by 0
       offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
@@ -709,7 +707,7 @@ case UNCOND:
 
   //Stats update
   stats.numRegWrites++;
-  stats.numRegReads++
+  stats.numRegReads++;
   break;
 
 case LDM:
