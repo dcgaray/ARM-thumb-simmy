@@ -518,10 +518,10 @@ switch(ldst_ops) {
     case STRBR:
     // need to implement
 	  // store register byte (register)
-         int offset_byteReg;
+        int offset_byteReg;
 	
         //Given that this is register based, no LSL # was specified so its a LSL by 0
-        offset_byteReg = ld_st.instr.ld_st_reg.rm << 0;
+        offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
         addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg*4;
 
         dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
@@ -536,14 +536,14 @@ switch(ldst_ops) {
     case LDRBR:
       int offset_byteReg;
 
-  	  // load register signed byte (register)
-      offset_byteReg = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
-      addr = rf[ld_st.instr.ld_st_imm.rn] + offset_byteReg * 4;
-      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+      //Given that this is register based, no LSL # was specified so its a LSL by 0
+      offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
+      addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg * 4;
+      rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
       //allow access to adr
       caches.access(addr);
       //stats
-      stats.numRegReads++;
+      stats.numRegReads += 2;
       stats.numMemReads++;
       stats.numRegWrites++;
       break;
