@@ -508,8 +508,8 @@ switch(ldst_ops) {
     case STRBI:
           //I based this model off of the original STRI given by Pantoja
           // store reg base (immediate)
-          addr = rf[ld_st.instr.ld_st_reg.rn] + ld_st.instr.ld_st_imm.imm * 4;
-          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+          dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
           // allow cache access to addr
           caches.access(addr);
           //stats
@@ -520,8 +520,8 @@ switch(ldst_ops) {
     case LDRBI:
           //This base is modeled off what was provided by Pantoja
           // load register base (immediate)
-          addr = rf[ld_st.instr.ld_st_reg.rn] + ld_st.instr.ld_st_imm.imm * 4;
-          rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
+          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
+          rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
           //allow access to addr
           caches.access(addr);
           //stats
@@ -543,7 +543,7 @@ switch(ldst_ops) {
         //allow access to addr
         caches.access(addr);
         //Stats
-        stats.numRegReads += 2;
+        stats.numRegReads += 3;
         stats.numMemWrites++;
     break;
 
