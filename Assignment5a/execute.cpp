@@ -501,7 +501,7 @@ switch(ldst_ops) {
           // need to implement
       // load register (register)
       addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
-      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+      rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
 
       //allow access to addr
       caches.access(addr);
