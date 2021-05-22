@@ -80,7 +80,7 @@ ALU_Ops decode (const ALU_Type data) {
   if (data.instr.lsli.op == ALU_LSLI_OP) {
     // 315: insert code here to print lsls instruction
     if (opts.instrs) { 
-      cout << "lsli r" << data.instr.lsli.rd  << ", r" << data.instr.lsli.rm << ", #" << data.instr.lsli.imm << endl;
+      cout << "lsls r" << data.instr.lsli.rd  << ", r" << data.instr.lsli.rm << ", #" << data.instr.lsli.imm << endl;
     }
     return ALU_LSLI;
   }
@@ -499,11 +499,17 @@ BL_Ops decode (const BL_Type data) {
 
 int decode (const LDM_Type data) {
   // 315: add code to print ldm 
+  if (opts.instrs){
+    //TODO: IMPLEMENT
+  }
   return LDM;
 }
 
 int decode (const STM_Type data) {
   // 315: add code to print ldm 
+  if (opts.instrs){
+    //TODO: IMPLEMENT
+  }
   return STM;
 }
 

@@ -9,6 +9,10 @@
 #define LR rf[LR_REG]
 #define SP rf[SP_REG]
 
+
+#define BYTE 8
+#define CELL 4
+
 Stats stats;
 Caches caches(0);
 int offset_byteReg;
@@ -45,9 +49,9 @@ void setNegativeFlag(int res){
 }
 void setZeroFlag(int res){
   if(res == 0){
-    flags.Z = 0;
-  }else{
     flags.Z = 1;
+  }else{
+    flags.Z = 0;
   }
 }
 
@@ -397,8 +401,10 @@ dp_ops = decode(dp);
 switch(dp_ops) {
     case DP_CMP:
           // need to implement
+          //cout << "-----------DP_CMP------------" << endl;
+      setCarryOverflow(rf[dp.instr.DP_Instr.rdn], dp.instr.DP_Instr.rm, OF_SUB);
       setNegativeFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);
-      setCarryOverflow(rf[dp.instr.DP_Instr.rdn] ,rf[dp.instr.DP_Instr.rm],OF_SUB);
+      setZeroFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);;
 
       stats.numRegReads += 2;
     break;
@@ -410,13 +416,24 @@ case SPECIAL:
 sp_ops = decode(sp);
 switch(sp_ops) {
     case SP_MOV:
-          // needs stats and flags
-    rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
-    setCarryOverflow(sp.instr.mov.d,3,OF_SHIFT);
-    break;
+    //cout << "-----------SP_MOV------------" << endl;
+      // needs stats and flags
+      rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
+      setNegativeFlag(rf[sp.instr.mov.rm]);
+      setZeroFlag(rf[sp.instr.mov.rm]);
+      stats.numRegWrites++;
+      stats.numRegReads++;
+      break;
     ///////////////////////////////////////
     case SP_ADD:
-    break;
+    //cout << "-----------SP_ADD------------" << endl;
+      setZeroFlag(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)] + rf[sp.instr.add.rm]);
+      setNegativeFlag(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)] + rf[sp.instr.add.rm]);
+      setCarryOverflow(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)], rf[sp.instr.add.rm], OF_ADD);
+      rf.write((sp.instr.add.d << 3 ) | sp.instr.add.rd, rf[(sp.instr.add.d << 3 ) | sp.instr.add.rd] + rf[sp.instr.add.rm]);
+      stats.numRegWrites++;
+      stats.numRegReads += 2;
+      break;
     ///////////////////////////////////////
     case SP_CMP:
           // need to implement these
@@ -473,20 +490,20 @@ switch(ldst_ops) {
     //////////////////////////////////
     case LDRR:
           // need to implement
-	  // load register (register)
-	  addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
-	  rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+      // load register (register)
+      addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
+      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
-	  //allow access to addr
-	  caches.access(addr);
+      //allow access to addr
+      caches.access(addr);
 
-	  //Stats
-	  stats.numRegReads += 2;
-          stats.numMemReads++;
-          stats.numRegWrites++;
+    
+      //Stats
+      stats.numRegReads += 2;
+      stats.numMemReads++;
+      stats.numRegWrites++;
+      break;
 
-
-    break;
     //////////////////////////////////
     case STRBI:
           //I based this model off of the original STRI given by Pantoja
@@ -511,33 +528,35 @@ switch(ldst_ops) {
           stats.numRegReads++;
           stats.numMemReads++;
           stats.numRegWrites++;
-          break;
+          break; 
 
     case STRBR:
-          // need to implement
-	  // store register byte (register)
-	       offset_byteReg = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
+    // need to implement
+      // store register byte (register)
+    
+        //Given that this is register based, no LSL # was specified so its a LSL by 0
+        offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
+        addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg*4;
 
-          addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg*4;
-          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+        dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
 
-          //allow access to addr
-          caches.access(addr);
-          //Stats
-          stats.numRegReads += 2;
-          stats.numMemWrites++;
-
+        //allow access to addr
+        caches.access(addr);
+        //Stats
+        stats.numRegReads += 3;
+        stats.numMemWrites++;
     break;
 
     case LDRBR:
-  	  // load register signed byte (register)
-      offset_byteReg = ld_st.instr.ld_st_reg.rm << ld_st.instr.ld_st_imm.imm;
-      addr = rf[ld_st.instr.ld_st_imm.rn] + offset_byteReg * 4;
-      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+
+      //Given that this is register based, no LSL # was specified so its a LSL by 0
+      offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
+      addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg * 4;
+      rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
       //allow access to adr
       caches.access(addr);
       //stats
-      stats.numRegReads++;
+      stats.numRegReads += 2;
       stats.numMemReads++;
       stats.numRegWrites++;
       break;
@@ -548,22 +567,105 @@ break;
 case MISC:
 misc_ops = decode(misc);
 switch(misc_ops) {
-    case MISC_PUSH:
+    case MISC_PUSH:{
           // need to implement
-    break;
+
+          int count = 0;
+          unsigned int i;
+
+          for (i = 0; i < BYTE; i++) {
+            count += (misc.instr.push.reg_list >> i) & 1;
+          }
+          
+          BitCount = count + misc.instr.push.m;
+
+          //address *4 cause 4 bits per
+          addr = SP - CELL * BitCount;
+
+          //for each of the 8 bits,  if the bit is 1, write to memory.
+          for (i = 0; i < BYTE; i++) {
+             if ((misc.instr.push.reg_list >> i) & 1) {
+                dmem.write(addr, rf[i]);
+                caches.access(addr);
+
+                //access cache
+                addr += CELL;
+
+                //update stats
+                stats.numRegReads++;
+                stats.numMemWrites++;
+             }            
+          }
+          /* Write to PC register if the m bit is set */
+          if (misc.instr.push.m) {
+             dmem.write(addr, LR);
+
+             //access cache
+             caches.access(addr);
+
+             //update stats
+             stats.numRegReads++;
+             stats.numMemWrites++;
+          }
+
+          rf.write(SP_REG, SP - BitCount * CELL);
+
+          //update stats
+          stats.numRegWrites++;
+          stats.numRegReads++;
+          }break;
     ////////////////////////////////////
-    case MISC_POP:
-          // need to implement
-    break;
+    case MISC_POP:{
+    // need to implement
+
+    int count = 0;
+    unsigned int i;
+
+    for (i = 0; i < BYTE; i++) {
+        count += (misc.instr.pop.reg_list >> i) & 1;
+    }
+          
+    BitCount = count + misc.instr.pop.m;
+    addr = SP;
+
+    //Check each bit 
+    for (i = 0; i < BYTE; i++) {
+        if ((misc.instr.pop.reg_list >> i) & 1) {
+           rf.write(i, dmem[addr]);
+           caches.access(addr);
+           addr += CELL;
+        }            
+    }
+    
+    /* Write to PC register if the m bit is set */
+    if (misc.instr.pop.m) {
+       rf.write(PC_REG, dmem[addr]);
+       caches.access(addr);
+    }
+
+    rf.write(SP_REG, SP + BitCount * CELL);
+    
+    //Update Stats
+    stats.numMemReads += BitCount;
+    stats.numRegReads++;
+    stats.numRegWrites += BitCount + 1; 
+          
+    }break;
     ////////////////////////////////////  
     case MISC_SUB:
-          // functionally complete, needs stats
-    rf.write(SP_REG, SP - (misc.instr.sub.imm*4));
-    break;
+        // functionally complete, needs stats
+        rf.write(SP_REG, SP - (misc.instr.sub.imm*4));
+        stats.numRegWrites++;
+        stats.numRegReads++;
+        break;
     ////////////////////////////////////  
     case MISC_ADD:
           // functionally complete, needs stats
     rf.write(SP_REG, SP + (misc.instr.add.imm*4));
+
+    //update stats
+    stats.numRegWrites++;
+    stats.numRegReads++;
     break;
     ///////////////////////////////////
 }
@@ -577,6 +679,10 @@ case COND:
   // needs stats
   if (checkCondition(cond.instr.b.cond)){
     rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
+    
+    //Stats update
+    stats.numRegWrites++;
+    stats.numRegReads++;
   }
   break;
   
@@ -585,6 +691,10 @@ case UNCOND:
   // condition check, and an 11-bit immediate field
   decode(uncond);
   rf.write(PC_REG, PC + 2 * signExtend11to32ui(cond.instr.b.imm) + 2);
+  
+  //Stats update
+  stats.numRegWrites++;
+  stats.numRegReads++;
   break;
 
 case LDM:
