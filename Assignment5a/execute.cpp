@@ -488,7 +488,7 @@ switch(ldst_ops) {
           caches.access(addr);
           
           //Stats
-          stats.numRegReads += 2;
+          stats.numRegReads += 3;
           stats.numMemWrites++;
 
 
@@ -554,7 +554,7 @@ switch(ldst_ops) {
           //allow access to addr
           caches.access(addr);
           //Stats
-          stats.numRegReads += 2;
+          stats.numRegReads += 3;
           stats.numMemWrites++;
 
     break;
@@ -568,9 +568,9 @@ switch(ldst_ops) {
       //allow access to adr
       caches.access(addr);
       //stats
-      stats.numRegReads++;
-      stats.numMemReads++;
       stats.numRegWrites++;
+      stats.numRegReads +=2;
+      stats.numMemReads++;
       break;
 }
 break;
