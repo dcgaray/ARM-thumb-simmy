@@ -505,14 +505,12 @@ switch(ldst_ops) {
       break;
 
     //////////////////////////////////
-   case STRBI:
+    case STRBI:
           //I based this model off of the original STRI given by Pantoja
           // store reg base (immediate)
-
           addr = rf[ld_st.instr.ld_st_reg.rn] + ld_st.instr.ld_st_imm.imm;
-          temp = dmem[addr];
-          dmem.write(addr, temp);
-          // cache access to addr
+          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+          // allow cache access to addr
           caches.access(addr);
           //stats
           stats.numRegReads += 2;
@@ -522,48 +520,46 @@ switch(ldst_ops) {
     case LDRBI:
           //This base is modeled off what was provided by Pantoja
           // load register base (immediate)
-          addr = rf[ld_st.instr.ld_st_reg.rn] + ld_st.instr.ld_st_imm.imm;   
+          addr = rf[ld_st.instr.ld_st_reg.rn] + ld_st.instr.ld_st_imm.imm;
           rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
-
           //allow access to addr
           caches.access(addr);
           //stats
           stats.numRegReads++;
           stats.numMemReads++;
           stats.numRegWrites++;
-          break;
+          break; 
 
     case STRBR:
-          // need to implement
+    // need to implement
       // store register byte (register)
-           
+    
         //Given that this is register based, no LSL # was specified so its a LSL by 0
+        offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
+        addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg;
 
+        dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
 
-          addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
-          temp = dmem[addr];
-          dmem.write(addr, temp);
-
-          //allow access to addr
-          caches.access(addr);
-          //Stats
-          stats.numRegReads += 3;
-          stats.numMemWrites++;
-
+        //allow access to addr
+        caches.access(addr);
+        //Stats
+        stats.numRegReads += 3;
+        stats.numMemWrites++;
     break;
 
     case LDRBR:
-        // load register signed byte (register)
-        addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
-        rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
-      
+
+      //Given that this is register based, no LSL # was specified so its a LSL by 0
+      offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
+      addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg;
+      rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
       //allow access to adr
       caches.access(addr);
       //stats
       stats.numRegReads += 2;
       stats.numMemReads++;
       stats.numRegWrites++;
-      break;  
+      break;
 }
 break;
 ////////////////////////////////
