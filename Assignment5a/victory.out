@@ -1,0 +1,27 @@
+25c25,26
+< fffffff0: 44434241
+---
+> ffffffec: 444342
+> fffffff0: 41000000
+43c44
+< 444342
+---
+> 42
+59c60
+< Total number of dynamic instructions: 0
+---
+> Total number of dynamic instructions: 22
+62,63c63,64
+< Number of Register Reads: 30
+< Number of Register Writes: 27
+---
+> Number of Register Reads: 48
+> Number of Register Writes: 45
+70a72,78
+> 256 byte cache (blocksize 4 bytes): 8 hits, 5 misses (hit rate: 61.5385%)
+> 256 byte cache (blocksize 8 bytes): 10 hits, 3 misses (hit rate: 76.9231%)
+> 256 byte cache (blocksize 16 bytes): 11 hits, 2 misses (hit rate: 84.6154%)
+> 256 byte cache (blocksize 32 bytes): 12 hits, 1 misses (hit rate: 92.3077%)
+> 256 byte cache (blocksize 64 bytes): 12 hits, 1 misses (hit rate: 92.3077%)
+> 256 byte cache (blocksize 128 bytes): 12 hits, 1 misses (hit rate: 92.3077%)
+> 256 byte cache (blocksize 256 bytes): 12 hits, 1 misses (hit rate: 92.3077%)
