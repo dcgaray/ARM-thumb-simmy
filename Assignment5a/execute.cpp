@@ -265,7 +265,7 @@ void execute() {
           setNegAndZero(rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
           //Set stats
           stats.numRegWrites++;
-          stats.numRegReads++;  //NOTE: This may be wrong, but it was only 1 register so...
+          stats.numRegReads ++;  //NOTE: This may be wrong, but it was only 1 register so...
           break;
 
         case ALU_ADDR:
@@ -348,8 +348,8 @@ void execute() {
         // set overflows
         setCarryOverflow(rf[alu.instr.sub8i.rdn], alu.instr.sub8i.imm, OF_SUB); 
         setNegAndZero(rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
-        stats.numRegReads++;
-        stats.numRegWrites++;
+        //stats.numRegReads++;
+        //stats.numRegWrites++;
         //Stats
         stats.numRegReads++;
         stats.numRegWrites++;
@@ -386,7 +386,7 @@ void execute() {
         rf.write(LR_REG, PC + 2);
         // Target address is also computed from that point
         rf.write(PC_REG, PC + 2 + addr);
-        stats.numRegReads += 1;
+        //stats.numRegReads += 1;
         stats.numRegWrites += 2; 
   }
     else {
@@ -401,16 +401,13 @@ dp_ops = decode(dp);
 switch(dp_ops) {
     case DP_CMP:
           // need to implement
+          //cout << "-----------DP_CMP------------" << endl;
       setCarryOverflow(rf[dp.instr.DP_Instr.rdn], dp.instr.DP_Instr.rm, OF_SUB);
       setNegativeFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);
       setZeroFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);;
-      stats.numRegReads += 2;
-      break;
-      //setNegativeFlag(rf[dp.instr.DP_Instr.rdn] - rf[dp.instr.DP_Instr.rm]);
-      //setCarryOverflow(rf[dp.instr.DP_Instr.rdn] ,rf[dp.instr.DP_Instr.rm],OF_SUB);
 
       //stats.numRegReads += 2;
-      //break;
+    break;
 }
 break;
 /////////////////////////////////
@@ -419,30 +416,24 @@ case SPECIAL:
 sp_ops = decode(sp);
 switch(sp_ops) {
     case SP_MOV:
-          // needs stats and flags
-    rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
-    setNegativeFlag(rf[sp.instr.mov.rm]);
-    setZeroFlag(rf[sp.instr.mov.rm]);
-    stats.numRegWrites++;
-    stats.numRegReads++;
-
-    break;
-    //rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
-    //setCarryOverflow(sp.instr.mov.d,3,OF_SHIFT);
-    //break;
+    //cout << "-----------SP_MOV------------" << endl;
+      // needs stats and flags
+      rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
+      setNegativeFlag(rf[sp.instr.mov.rm]);
+      setZeroFlag(rf[sp.instr.mov.rm]);
+      stats.numRegWrites++;
+      stats.numRegReads++;
+      break;
     ///////////////////////////////////////
-    //case SP_ADD:
-    //cout << "add go brr" << endl;
-    setZeroFlag(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)] + rf[sp.instr.add.rm]);
-    setNegativeFlag(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)] + rf[sp.instr.add.rm]);
-    setCarryOverflow(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)], rf[sp.instr.add.rm], OF_ADD);
-    
-    rf.write((sp.instr.add.d << 3 ) | sp.instr.add.rd, rf[(sp.instr.add.d << 3 ) | sp.instr.add.rd] + rf[sp.instr.add.rm]);
-    
-    stats.numRegWrites++;
-    stats.numRegReads += 2;
-    break;
-    //break;
+    case SP_ADD:
+    //cout << "-----------SP_ADD------------" << endl;
+      setZeroFlag(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)] + rf[sp.instr.add.rm]);
+      setNegativeFlag(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)] + rf[sp.instr.add.rm]);
+      setCarryOverflow(rf[((sp.instr.add.d << 3 ) | sp.instr.add.rd)], rf[sp.instr.add.rm], OF_ADD);
+      rf.write((sp.instr.add.d << 3 ) | sp.instr.add.rd, rf[(sp.instr.add.d << 3 ) | sp.instr.add.rd] + rf[sp.instr.add.rm]);
+      stats.numRegWrites++;
+      stats.numRegReads += 2;
+      break;
     ///////////////////////////////////////
     case SP_CMP:
           // need to implement these
@@ -491,7 +482,7 @@ switch(ldst_ops) {
           caches.access(addr);
           
           //Stats
-          stats.numRegReads += 2;
+          stats.numRegReads += 3;
           stats.numMemWrites++;
 
 
@@ -501,7 +492,7 @@ switch(ldst_ops) {
           // need to implement
       // load register (register)
       addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
-      rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
+      rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
       //allow access to addr
       caches.access(addr);
@@ -517,8 +508,8 @@ switch(ldst_ops) {
     case STRBI:
           //I based this model off of the original STRI given by Pantoja
           // store reg base (immediate)
-          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
-          dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
+          addr = rf[ld_st.instr.ld_st_reg.rn] + ld_st.instr.ld_st_imm.imm * 4;
+          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
           // allow cache access to addr
           caches.access(addr);
           //stats
@@ -529,41 +520,43 @@ switch(ldst_ops) {
     case LDRBI:
           //This base is modeled off what was provided by Pantoja
           // load register base (immediate)
-          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
-          rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+          addr = rf[ld_st.instr.ld_st_reg.rn] + ld_st.instr.ld_st_imm.imm * 4;
+          rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
           //allow access to addr
           caches.access(addr);
           //stats
           stats.numRegReads++;
           stats.numMemReads++;
           stats.numRegWrites++;
-          break;
+          break; 
 
     case STRBR:
-          // need to implement
-	  // store register byte (register)
-	       offset_byteReg = ld_st.instr.ld_st_reg.rm << 0;
+    // need to implement
+      // store register byte (register)
+    
+        //Given that this is register based, no LSL # was specified so its a LSL by 0
+        offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
+        addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg*4;
 
-          addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg*4;
-          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+        dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
 
-          //allow access to addr
-          caches.access(addr);
-          //Stats
-          stats.numRegReads += 2;
-          stats.numMemWrites++;
-
+        //allow access to addr
+        caches.access(addr);
+        //Stats
+        stats.numRegReads += 3;
+        stats.numMemWrites++;
     break;
 
     case LDRBR:
-  	  // load register signed byte (register)
-      offset_byteReg = ld_st.instr.ld_st_reg.rm << 0;
+
+      //Given that this is register based, no LSL # was specified so its a LSL by 0
+      offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
       addr = rf[ld_st.instr.ld_st_reg.rn] + offset_byteReg * 4;
       rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
       //allow access to adr
       caches.access(addr);
       //stats
-      stats.numRegReads++;
+      stats.numRegReads += 2;
       stats.numMemReads++;
       stats.numRegWrites++;
       break;
@@ -698,6 +691,10 @@ case UNCOND:
   // condition check, and an 11-bit immediate field
   decode(uncond);
   rf.write(PC_REG, PC + 2 * signExtend11to32ui(cond.instr.b.imm) + 2);
+  
+  //Stats update
+  stats.numRegWrites++;
+  stats.numRegReads++;
   break;
 
 case LDM:
