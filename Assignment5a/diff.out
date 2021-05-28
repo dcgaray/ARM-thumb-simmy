@@ -1,0 +1,29 @@
+1327979c1327979
+< Total number of dynamic instructions: 0
+---
+> Total number of dynamic instructions: 1326980
+1327982,1327983c1327982,1327983
+< Number of Register Reads: 1640525
+< Number of Register Writes: 1184825
+---
+> Number of Register Reads: 2967987
+> Number of Register Writes: 2512287
+1327986,1327987c1327986,1327987
+<     Taken: 0
+<     Not taken: 0
+---
+>     Taken: 9010
+>     Not taken: 461
+1327989,1327990c1327989,1327997
+<     Taken: 0
+<     Not taken: 0
+---
+>     Taken: 41650
+>     Not taken: 9741
+> 256 byte cache (blocksize 4 bytes): 377632 hits, 30243 misses (hit rate: 92.5852%)
+> 256 byte cache (blocksize 8 bytes): 383482 hits, 24393 misses (hit rate: 94.0195%)
+> 256 byte cache (blocksize 16 bytes): 382199 hits, 25676 misses (hit rate: 93.7049%)
+> 256 byte cache (blocksize 32 bytes): 371018 hits, 36857 misses (hit rate: 90.9637%)
+> 256 byte cache (blocksize 64 bytes): 347467 hits, 60408 misses (hit rate: 85.1896%)
+> 256 byte cache (blocksize 128 bytes): 296780 hits, 111095 misses (hit rate: 72.7625%)
+> 256 byte cache (blocksize 256 bytes): 242527 hits, 165348 misses (hit rate: 59.4611%)
