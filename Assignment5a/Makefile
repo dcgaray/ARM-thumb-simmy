@@ -1,8 +1,0 @@
-all:
-	g++ -g main.cpp decode.cpp thumbsim_driver.cpp parse.cpp execute.cpp -o thumbsim -w
-
-run:
-	./thumbsim -i -s -d -f inputs/bytetest.sim
-
-clean:
-	rm -rf ./*.o ./thumbsim
