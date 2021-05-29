@@ -426,7 +426,7 @@ void execute() {
             setNegativeFlag(rf[sp.instr.mov.rm]);
             setZeroFlag(rf[sp.instr.mov.rm]);
             stats.numRegWrites++;
-            stats.numRegReads+=2; //questionable
+            stats.numRegReads++;
             break;
             ///////////////////////////////////////
         case SP_ADD:
@@ -436,7 +436,7 @@ void execute() {
             setCarryOverflow(rf[((sp.instr.add.d << 3) | sp.instr.add.rd)], rf[sp.instr.add.rm], OF_ADD);
             rf.write((sp.instr.add.d << 3) | sp.instr.add.rd, rf[(sp.instr.add.d << 3) | sp.instr.add.rd] + rf[sp.instr.add.rm]);
             stats.numRegWrites++;
-            stats.numRegReads += 3;//questionable
+            stats.numRegReads += 2;
             break;
             ///////////////////////////////////////
         case SP_CMP:
@@ -651,7 +651,7 @@ void execute() {
 
             //Update Stats
             stats.numMemReads += BitCount;
-            stats.numRegReads += 2;//questionable b
+            stats.numRegReads ++;//questionable b
             stats.numRegWrites += BitCount + 1;
 
         }break;
