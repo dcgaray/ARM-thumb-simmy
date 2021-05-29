@@ -678,6 +678,7 @@ void execute() {
         /////////////////////////////////////
     case COND:
         decode(cond);
+        //This is where branch prediction works
         // Once you've completed the checkCondition function,
         // this should work for all your conditional branches.
         // needs stats
