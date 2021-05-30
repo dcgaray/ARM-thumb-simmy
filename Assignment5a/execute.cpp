@@ -64,7 +64,7 @@ void setNegAndZero(int res) {
 // This function is complete, you should not have to modify it
 void setCarryOverflow(int num1, int num2, OFType oftype) {
     switch (oftype) {
-    case OF_ADD:
+        case OF_ADD:
         if (((unsigned long long int)num1 + (unsigned long long int)num2) == ((unsigned int)num1 + (unsigned int)num2)) {
             flags.C = 0;
         }
@@ -79,7 +79,7 @@ void setCarryOverflow(int num1, int num2, OFType oftype) {
         }
         break;
         ////////////////////////////////////////
-    case OF_SUB:
+        case OF_SUB:
         if (num1 >= num2) {
             flags.C = 1;
         }
@@ -97,7 +97,7 @@ void setCarryOverflow(int num1, int num2, OFType oftype) {
         }
         break;
         ///////////////////////////////////////////
-    case OF_SHIFT:
+        case OF_SHIFT:
         // C flag unaffected for shifts by zero
         if (num2 != 0) {
             if (((unsigned long long int)num1 << (unsigned long long int)num2) == ((unsigned int)num1 << (unsigned int)num2)) {
@@ -110,7 +110,7 @@ void setCarryOverflow(int num1, int num2, OFType oftype) {
         // Shift doesn't set overflow
         break;
         /////////////////////////////////////////////
-    default:
+        default:
         cerr << "Bad OverFlow Type encountered." << __LINE__ << __FILE__ << endl;
         exit(1);
     }
@@ -120,91 +120,91 @@ void setCarryOverflow(int num1, int num2, OFType oftype) {
 // the Arm v7 Manuel that was provided to us by Pantoja.
 static int checkCondition(unsigned short cond) {
     switch (cond) {
-    case EQ:
+        case EQ:
         if (flags.Z == 1) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case NE:
+        case NE:
         if (flags.Z == 0) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case CS:
+        case CS:
         if (flags.C == 1) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case CC:
+        case CC:
         if (flags.C == 0) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case MI:
+        case MI:
         if (flags.N == 1) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case PL:
+        case PL:
         if (flags.N == 0) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case VS:
+        case VS:
         if (flags.V == 1) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case VC:
+        case VC:
         if (flags.V == 0) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case HI:
+        case HI:
         if (flags.C == 1 && flags.Z == 0) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case LS:
+        case LS:
         if (flags.C == 0 || flags.Z == 1) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case GE:
+        case GE:
         if (flags.N == flags.V) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case LT:
+        case LT:
         if (flags.N != flags.V) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case GT:
+        case GT:
         if (flags.Z == 0 && flags.N == flags.V) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case LE:
+        case LE:
         if (flags.Z == 1 or flags.N != flags.V) {
             return TRUE;
         }
         break;
         ////////////////////////
-    case AL:
+        case AL:
         return TRUE;
         break;
         ////////////////////////
@@ -258,11 +258,11 @@ void execute() {
     // All instructions will need to have stats and cache access info added
     // as appropriate for that instruction.
     switch (itype) {
-    case ALU:
+        case ALU:
         stats.instrs++; //1
         add_ops = decode(alu);
         switch (add_ops) {
-        case ALU_LSLI:
+            case ALU_LSLI:
             // I followed all of the instructions I found from the manuel in A7.7.67 LSL(Immediate)
             rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
             // Check to see if we need to set any of the flags.
@@ -273,7 +273,7 @@ void execute() {
             stats.numRegReads++;  //NOTE: This may be wrong, but it was only 1 register so...
             break;
 
-        case ALU_ADDR:
+            case ALU_ADDR:
             rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
             // Set OverFlow, Negative and Zero Flags as indicated by A7.74 Add (register)
             setCarryOverflow(rf[alu.instr.addr.rn], rf[alu.instr.addr.rm], OF_ADD);
@@ -287,7 +287,7 @@ void execute() {
             stats.numRegReads += 2;
             break;
 
-        case ALU_SUBR:
+            case ALU_SUBR:
             rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
             //set flags according to A7.7.172
             setCarryOverflow(rf[alu.instr.subr.rn], rf[alu.instr.subr.rm], OF_SUB);
@@ -299,7 +299,7 @@ void execute() {
             stats.numRegReads += 2;
             break;
 
-        case ALU_ADD3I:
+            case ALU_ADD3I:
             rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
             // Set OverFlow, Negative as indicated by A7.7.3 ADD (immediate)
             setCarryOverflow(rf[alu.instr.addr.rn], rf[alu.instr.addr.rm], OF_ADD);
@@ -309,7 +309,7 @@ void execute() {
             stats.numRegReads++;
             break;
 
-        case ALU_SUB3I:
+            case ALU_SUB3I:
             rf.write(alu.instr.sub3i.rd, rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
             // Set OverFlow, Negative as indicated by A7.7.171 SUB (immediate)
             setCarryOverflow(rf[alu.instr.sub3i.rn], alu.instr.sub3i.imm, OF_SUB);
@@ -319,7 +319,7 @@ void execute() {
             stats.numRegReads++;
             break;
 
-        case ALU_MOV:
+            case ALU_MOV:
             rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
             // Set Negative as indicated by A7.7.75
             setNegativeFlag(alu.instr.mov.imm);
@@ -328,7 +328,7 @@ void execute() {
             stats.numRegWrites++;
             break;
 
-        case ALU_CMP:
+            case ALU_CMP:
             // Set flags as indicated by A7.7.27
             setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB); // NOTE: 
             setNegativeFlag(rf[alu.instr.cmp.rdn] - alu.instr.cmp.imm);
@@ -337,7 +337,7 @@ void execute() {
             stats.numRegReads++;
             break;
 
-        case ALU_ADD8I:
+            case ALU_ADD8I:
             // needs stats and flags
             rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
             // set overflows
@@ -347,7 +347,7 @@ void execute() {
             stats.numRegWrites++;
             break;
 
-        case ALU_SUB8I:
+            case ALU_SUB8I:
             // needs stats and flags
             rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
             // set overflows
@@ -360,7 +360,7 @@ void execute() {
             //stats.numRegWrites++;
             break;
 
-        default:
+            default:
             cout << "instruction not implemented" << endl;
             exit(1);
             break;
@@ -369,7 +369,7 @@ void execute() {
         break;
         ////////////////////////////////////
         ////////////////////////////////////
-    case BL:
+        case BL:
         stats.instrs++; //2
         // This instruction is complete, nothing needed here
         bl_ops = decode(blupper);
@@ -379,14 +379,14 @@ void execute() {
             BL_Type bllower(instr2);
             if (blupper.instr.bl_upper.s) {
                 addr = static_cast<unsigned int>(0xff << 24) |
-                    ((~(bllower.instr.bl_lower.j1 ^ blupper.instr.bl_upper.s)) << 23) |
-                    ((~(bllower.instr.bl_lower.j2 ^ blupper.instr.bl_upper.s)) << 22) |
-                    ((blupper.instr.bl_upper.imm10) << 12) |
-                    ((bllower.instr.bl_lower.imm11) << 1);
+                ((~(bllower.instr.bl_lower.j1 ^ blupper.instr.bl_upper.s)) << 23) |
+                ((~(bllower.instr.bl_lower.j2 ^ blupper.instr.bl_upper.s)) << 22) |
+                ((blupper.instr.bl_upper.imm10) << 12) |
+                ((bllower.instr.bl_lower.imm11) << 1);
             }
             else {
                 addr = ((blupper.instr.bl_upper.imm10) << 12) |
-                    ((bllower.instr.bl_lower.imm11) << 1);
+                ((bllower.instr.bl_lower.imm11) << 1);
             }
             // return address is 4-bytes away from the start of the BL insn
             rf.write(LR_REG, PC + 2);
@@ -402,11 +402,11 @@ void execute() {
         break;
         /////////////////////////////////
         /////////////////////////////////
-    case DP:
+        case DP:
         stats.instrs++; //3
         dp_ops = decode(dp);
         switch (dp_ops) {
-        case DP_CMP:
+            case DP_CMP:
             // need to implement
             //cout << "-----------DP_CMP------------" << endl;
             setCarryOverflow(rf[dp.instr.DP_Instr.rdn], dp.instr.DP_Instr.rm, OF_SUB);
@@ -419,11 +419,11 @@ void execute() {
         break;
         /////////////////////////////////
         /////////////////////////////////
-    case SPECIAL:
+        case SPECIAL:
         stats.instrs++; //4
         sp_ops = decode(sp);
         switch (sp_ops) {
-        case SP_MOV:
+            case SP_MOV:
             //cout << "-----------SP_MOV------------" << endl;
               // needs stats and flags
             rf.write((sp.instr.mov.d << 3) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
@@ -433,7 +433,7 @@ void execute() {
             stats.numRegReads++;
             break;
             ///////////////////////////////////////
-        case SP_ADD:
+            case SP_ADD:
             //cout << "-----------SP_ADD------------" << endl;
             setZeroFlag(rf[((sp.instr.add.d << 3) | sp.instr.add.rd)] + rf[sp.instr.add.rm]);
             setNegativeFlag(rf[((sp.instr.add.d << 3) | sp.instr.add.rd)] + rf[sp.instr.add.rm]);
@@ -443,7 +443,7 @@ void execute() {
             stats.numRegReads += 2;
             break;
             ///////////////////////////////////////
-        case SP_CMP:
+            case SP_CMP:
             // need to implement these
             break;
             ////////////////////////////////////////
@@ -451,13 +451,13 @@ void execute() {
         break;
         /////////////////////////////////
         /////////////////////////////////
-    case LD_ST:
+        case LD_ST:
         stats.instrs++; //5
         // You'll want to use these load and store models
         // to implement ldrb/strb, ldm/stm and push/pop
         ldst_ops = decode(ld_st);
         switch (ldst_ops) {
-        case STRI:
+            case STRI:
             addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
             dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
 
@@ -469,7 +469,7 @@ void execute() {
             stats.numMemWrites++;
             break;
             //////////////////////////////////
-        case LDRI:
+            case LDRI:
             addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
             rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
 
@@ -482,7 +482,7 @@ void execute() {
             stats.numRegWrites++;
             break;
             //////////////////////////////////
-        case STRR:
+            case STRR:
             // need to implement
             addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
             dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
@@ -497,7 +497,7 @@ void execute() {
 
             break;
             //////////////////////////////////
-        case LDRR:
+            case LDRR:
             // need to implement
         // load register (register)
             addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
@@ -514,7 +514,7 @@ void execute() {
             break;
 
             //////////////////////////////////
-        case STRBI:
+            case STRBI:
             //I based this model off of the original STRI given by Pantoja
             // store reg base (immediate)
             addr = rf[ld_st.instr.ld_st_reg.rn] + ld_st.instr.ld_st_imm.imm;
@@ -526,7 +526,7 @@ void execute() {
             stats.numMemWrites++;
             break;
 
-        case LDRBI:
+            case LDRBI:
             //This base is modeled off what was provided by Pantoja
             // load register base (immediate)
             addr = rf[ld_st.instr.ld_st_reg.rn] + ld_st.instr.ld_st_imm.imm;
@@ -539,7 +539,7 @@ void execute() {
             stats.numRegWrites++;
             break;
 
-        case STRBR:
+            case STRBR:
             // need to implement
               // store register byte (register)
 
@@ -556,7 +556,7 @@ void execute() {
             stats.numMemWrites++;
             break;
 
-        case LDRBR:
+            case LDRBR:
 
             //Given that this is register based, no LSL # was specified so its a LSL by 0
             offset_byteReg = rf[ld_st.instr.ld_st_reg.rm] << 0;
@@ -573,90 +573,90 @@ void execute() {
         break;
         ////////////////////////////////
         ////////////////////////////////
-    case MISC:
+        case MISC:
         stats.instrs++; //6
         misc_ops = decode(misc);
         switch (misc_ops) {
-        case MISC_PUSH: {
+            case MISC_PUSH: {
             // need to implement
 
-            int count = 0;
-            unsigned int i;
+                int count = 0;
+                unsigned int i;
 
-            for (i = 0; i < BYTE; i++) {
-                count += (misc.instr.push.reg_list >> i) & 1;
-            }
+                for (i = 0; i < BYTE; i++) {
+                    count += (misc.instr.push.reg_list >> i) & 1;
+                }
 
-            BitCount = count + misc.instr.push.m;
+                BitCount = count + misc.instr.push.m;
 
             //address *4 cause 4 bits per
-            addr = SP - CELL * BitCount;
+                addr = SP - CELL * BitCount;
 
             //for each of the 8 bits,  if the bit is 1, write to memory.
-            for (i = 0; i < BYTE; i++) {
-                if ((misc.instr.push.reg_list >> i) & 1) {
-                    dmem.write(addr, rf[i]);
-                    caches.access(addr);
+                for (i = 0; i < BYTE; i++) {
+                    if ((misc.instr.push.reg_list >> i) & 1) {
+                        dmem.write(addr, rf[i]);
+                        caches.access(addr);
 
                     //access cache
-                    addr += CELL;
+                        addr += CELL;
 
                     //update stats
+                        stats.numRegReads++;
+                        stats.numMemWrites++;
+                    }
+                }
+            /* Write to PC register if the m bit is set */
+                if (misc.instr.push.m) {
+                    dmem.write(addr, LR);
+
+                //access cache
+                    caches.access(addr);
+
+                //update stats
                     stats.numRegReads++;
                     stats.numMemWrites++;
                 }
-            }
-            /* Write to PC register if the m bit is set */
-            if (misc.instr.push.m) {
-                dmem.write(addr, LR);
 
-                //access cache
-                caches.access(addr);
-
-                //update stats
-                stats.numRegReads++;
-                stats.numMemWrites++;
-            }
-
-            rf.write(SP_REG, SP - BitCount * CELL);
+                rf.write(SP_REG, SP - BitCount * CELL);
 
             //update stats
-            stats.numRegWrites++;
-            stats.numRegReads++;
-        }break;
+                stats.numRegWrites++;
+                stats.numRegReads++;
+            }break;
             ////////////////////////////////////
-        case MISC_POP: {
+            case MISC_POP: {
             // need to implement
 
-            int count = 0;
-            unsigned int i;
+                int count = 0;
+                unsigned int i;
 
-            for (i = 0; i < BYTE; i++) {
-                count += (misc.instr.pop.reg_list >> i) & 1;
-            }
+                for (i = 0; i < BYTE; i++) {
+                    count += (misc.instr.pop.reg_list >> i) & 1;
+                }
 
-            BitCount = count + misc.instr.pop.m;
-            addr = SP;
+                BitCount = count + misc.instr.pop.m;
+                addr = SP;
 
             //Check each bit 
-            for (i = 0; i < BYTE; i++) {
-                if ((misc.instr.pop.reg_list >> i) & 1) {
-                    rf.write(i, dmem[addr]);
-                    caches.access(addr);
-                    addr += CELL;
+                for (i = 0; i < BYTE; i++) {
+                    if ((misc.instr.pop.reg_list >> i) & 1) {
+                        rf.write(i, dmem[addr]);
+                        caches.access(addr);
+                        addr += CELL;
+                    }
                 }
-            }
 
             /* Write to PC register if the m bit is set */
-            if (misc.instr.pop.m) {
-                rf.write(PC_REG, dmem[addr]);
-                caches.access(addr);
-            }
+                if (misc.instr.pop.m) {
+                    rf.write(PC_REG, dmem[addr]);
+                    caches.access(addr);
+                }
 
-            rf.write(SP_REG, SP + BitCount * CELL);
+                rf.write(SP_REG, SP + BitCount * CELL);
 
             //Update Stats
-            stats.numMemReads += BitCount;
+                stats.numMemReads += BitCount;
             stats.numRegReads++;//questionable b
             stats.numRegWrites += BitCount + 1;
 
@@ -664,40 +664,56 @@ void execute() {
             ////////////////////////////////////  
         case MISC_SUB:
             // functionally complete, needs stats
-            rf.write(SP_REG, SP - (misc.instr.sub.imm * 4));
-            stats.numRegWrites++;
-            stats.numRegReads++;
-            break;
+        rf.write(SP_REG, SP - (misc.instr.sub.imm * 4));
+        stats.numRegWrites++;
+        stats.numRegReads++;
+        break;
             ////////////////////////////////////  
         case MISC_ADD:
             // functionally complete, needs stats
-            rf.write(SP_REG, SP + (misc.instr.add.imm * 4));
+        rf.write(SP_REG, SP + (misc.instr.add.imm * 4));
 
             //update stats
-            stats.numRegWrites++;
-            stats.numRegReads++;
-            break;
-            ///////////////////////////////////
-        }
+        stats.numRegWrites++;
+        stats.numRegReads++;
         break;
+            ///////////////////////////////////
+    }
+    break;
         /////////////////////////////////////
         /////////////////////////////////////
     case COND:
         stats.instrs++; //7
         decode(cond);
+        
+        if(checkCondition(cond.instr.b.cond)){
+            if(signExtend8to32ui(cond.instr.b.imm)> 0){
+              stats.numForwardBranchesTaken++;
+          } else {
+              stats.numBackwardBranchesTaken++;
+          }
+      } 
+      else {
+            if(signExtend8to32ui(cond.instr.b.imm)> 0){
+                stats.numForwardBranchesNotTaken++;
+            } 
+            else {
+                stats.numBackwardBranchesNotTaken++;
+            }
+      }
         // Once you've completed the checkCondition function,
         // this should work for all your conditional branches.
         // needs stats
-        if (checkCondition(cond.instr.b.cond)) {
-            rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
+  if (checkCondition(cond.instr.b.cond)) {
+    rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
 
             //Stats update
-            stats.numRegWrites++;
-            stats.numRegReads++;
-        }
-        break;
+    stats.numRegWrites++;
+    stats.numRegReads++;
+}
+break;
 
-    case UNCOND:
+case UNCOND:
         stats.instrs++; //8
         // Essentially the same as the conditional branches, but with no
         // condition check, and an 11-bit immediate field
@@ -709,21 +725,21 @@ void execute() {
         stats.numRegReads++;
         break;
 
-    case LDM:
+        case LDM:
         stats.instrs++; //9
         decode(ldm);
         // need to implement
         break;
         ////////////////////////////////////////
         ////////////////////////////////////////
-    case STM:
+        case STM:
         stats.instrs++; //10
         decode(stm);
         // need to implement
         break;
         ////////////////////////////////////////
         ////////////////////////////////////////
-    case LDRL:
+        case LDRL:
         stats.instrs++; //11
         // This instruction is complete, nothing needed
         decode(ldrl);
@@ -746,7 +762,7 @@ void execute() {
         stats.numMemReads++;
         break;
         //////////////////////////////////
-    case ADD_SP:
+        case ADD_SP:
         stats.instrs++; //12
         // needs stats
         decode(addsp);
@@ -755,7 +771,7 @@ void execute() {
         stats.numRegWrites++;
         break;
         ///////////////////////////////////
-    default:
+        default:
         cout << "[ERROR] Unknown Instruction to be executed" << endl;
         exit(1);
         break;
