@@ -259,6 +259,7 @@ void execute() {
     // as appropriate for that instruction.
     switch (itype) {
     case ALU:
+        stats.instrs++; //1
         add_ops = decode(alu);
         switch (add_ops) {
         case ALU_LSLI:
@@ -369,6 +370,7 @@ void execute() {
         ////////////////////////////////////
         ////////////////////////////////////
     case BL:
+        stats.instrs++; //2
         // This instruction is complete, nothing needed here
         bl_ops = decode(blupper);
         if (bl_ops == BL_UPPER) {
@@ -401,6 +403,7 @@ void execute() {
         /////////////////////////////////
         /////////////////////////////////
     case DP:
+        stats.instrs++; //3
         dp_ops = decode(dp);
         switch (dp_ops) {
         case DP_CMP:
@@ -417,6 +420,7 @@ void execute() {
         /////////////////////////////////
         /////////////////////////////////
     case SPECIAL:
+        stats.instrs++; //4
         sp_ops = decode(sp);
         switch (sp_ops) {
         case SP_MOV:
@@ -448,6 +452,7 @@ void execute() {
         /////////////////////////////////
         /////////////////////////////////
     case LD_ST:
+        stats.instrs++; //5
         // You'll want to use these load and store models
         // to implement ldrb/strb, ldm/stm and push/pop
         ldst_ops = decode(ld_st);
@@ -569,6 +574,7 @@ void execute() {
         ////////////////////////////////
         ////////////////////////////////
     case MISC:
+        stats.instrs++; //6
         misc_ops = decode(misc);
         switch (misc_ops) {
         case MISC_PUSH: {
@@ -651,7 +657,7 @@ void execute() {
 
             //Update Stats
             stats.numMemReads += BitCount;
-            stats.numRegReads ++;//questionable b
+            stats.numRegReads++;//questionable b
             stats.numRegWrites += BitCount + 1;
 
         }break;
@@ -677,8 +683,8 @@ void execute() {
         /////////////////////////////////////
         /////////////////////////////////////
     case COND:
+        stats.instrs++; //7
         decode(cond);
-        //This is where branch prediction works
         // Once you've completed the checkCondition function,
         // this should work for all your conditional branches.
         // needs stats
@@ -692,6 +698,7 @@ void execute() {
         break;
 
     case UNCOND:
+        stats.instrs++; //8
         // Essentially the same as the conditional branches, but with no
         // condition check, and an 11-bit immediate field
         decode(uncond);
@@ -703,18 +710,21 @@ void execute() {
         break;
 
     case LDM:
+        stats.instrs++; //9
         decode(ldm);
         // need to implement
         break;
         ////////////////////////////////////////
         ////////////////////////////////////////
     case STM:
+        stats.instrs++; //10
         decode(stm);
         // need to implement
         break;
         ////////////////////////////////////////
         ////////////////////////////////////////
     case LDRL:
+        stats.instrs++; //11
         // This instruction is complete, nothing needed
         decode(ldrl);
         // Need to check for alignment by 4
@@ -737,11 +747,12 @@ void execute() {
         break;
         //////////////////////////////////
     case ADD_SP:
+        stats.instrs++; //12
         // needs stats
         decode(addsp);
         rf.write(addsp.instr.add.rd, SP + (addsp.instr.add.imm * 4));
-	stats.numRegReads++;
-	stats.numRegWrites++;
+        stats.numRegReads++;
+        stats.numRegWrites++;
         break;
         ///////////////////////////////////
     default:
